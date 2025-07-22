@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Ders Notlarım{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Ders Notlarım</h2>
+
+<table class="table table-bordered">
+  <thead class="table-light">
+    <tr>
+      <th rowspan="2">Ders</th>
+      <th colspan="4" class="text-center text-danger">1. Dönem</th>
+      <th colspan="4" class="text-center text-danger">2. Dönem</th>
+      <th rowspan="2" class='text-danger'>Yıl Sonu Ort.</th>
+    </tr>
+    <tr>
+      <th>Test</th>
+      <th>Yazılı</th>
+      <th>Sözlü</th>
+      <th class='text-danger'>Ort.</th>
+      <th>Test</th>
+      <th>Yazılı</th>
+      <th>Sözlü</th>
+      <th class='text-danger'>Ort.</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for not in notlar %}
+    <tr>
+      <td>{{ not.ders.ad }}</td>
+      <td>{{ not.donem1_test|default:"-" }}</td>
+      <td>{{ not.donem1_yazili|default:"-" }}</td>
+      <td>{{ not.donem1_sozlu|default:"-" }}</td>
+      <td class='text-danger'>{{ not.ortalama1|default:"-" }}</td>
+      <td>{{ not.donem2_test|default:"-" }}</td>
+      <td>{{ not.donem2_yazili|default:"-" }}</td>
+      <td>{{ not.donem2_sozlu|default:"-" }}</td>
+      <td class='text-danger'>{{ not.ortalama2|default:"-" }}</td>
+      <td class='text-danger'>{{ not.yil_sonu_ortalama|default:"-" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

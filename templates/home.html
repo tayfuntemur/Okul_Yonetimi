@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5 text-center">
+<div class="p-5 bg-light rounded shadow">
+    <h1 class="display-5 fw-bold text-primary"> Hoş geldiniz{% if user.first_name %}, {{ user.first_name }}{% endif %}!</h1>
+</div>
+
+  <div class="d-flex flex-column flex-md-row justify-content-center gap-4 mt-4">
+
+  {% if user.is_authenticated %}
+    {% if user.role == "ogrenci" %}
+
+    <a href="{% url 'not_gir:ogrenci_notlari' %}" class="btn btn-success btn-lg px-4">
+        📝 Notlarımı Görüntüle
+    </a>
+    
+    <a href="{% url 'devamsizlik:ogrenci_devamsizlik' %}" class="btn btn-warning btn-lg px-4">
+      📅 Devamsızlık Durumum
+    </a> 
+  
+    {% elif user.role == "superuser" %}
+    <a href="{% url 'not_gir:sinif-secimi' %}" class="btn btn-success btn-lg px-4">
+
+      📝 Toplu Not Girişi
+    </a> 
+  
+      {% endif %}
+    {% endif %}
+  </div>
+
+
+ 
+</div>
+{% endblock %}
+
+

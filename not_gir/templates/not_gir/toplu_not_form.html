@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load get_item %}
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">{{ sinif.ad }} - {{ ders.ad }} Dersi - Dönem Not Girişi</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover align-middle text-center">
+        <thead class="table-dark">
+          <tr>
+            <th>Öğrenci</th>
+            <th>Test 1</th>
+            <th>Yazılı 1</th>
+            <th>Sözlü 1</th>
+            <th>Ortalama 1</th>
+            <th>Test 2</th>
+            <th>Yazılı 2</th>
+            <th>Sözlü 2</th>
+            <th>Ortalama 2</th>
+            <th>Yıl Sonu Ortalama</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ogrenci in ogrenciler %}
+            {% with note=notlar_dict|get_item:ogrenci.id %}
+              <tr>
+                <td class="text-start">{{ ogrenci }}</td>
+                
+                <td>
+                  <input type="number" name="donem1_test_{{ ogrenci.id }}" class="form-control" step="0.01"
+                         value="{{ note.donem1_test|default_if_none:'' }}">
+                </td>
+                <td>
+                  <input type="number" name="donem1_yazili_{{ ogrenci.id }}" class="form-control" step="0.01"
+                         value="{{ note.donem1_yazili|default_if_none:'' }}">
+                </td>
+                <td>
+                  <input type="number" name="donem1_sozlu_{{ ogrenci.id }}" class="form-control" step="0.01"
+                         value="{{ note.donem1_sozlu|default_if_none:'' }}">
+                </td>
+                <td>
+                  {% if note.ortalama1 is not None %}
+                    {{ note.ortalama1|floatformat:2 }}
+                  {% endif %}
+                </td>
+
+                <td>
+                  <input type="number" name="donem2_test_{{ ogrenci.id }}" class="form-control" step="0.01"
+                         value="{{ note.donem2_test|default_if_none:'' }}">
+                </td>
+                <td>
+                  <input type="number" name="donem2_yazili_{{ ogrenci.id }}" class="form-control" step="0.01"
+                         value="{{ note.donem2_yazili|default_if_none:'' }}">
+                </td>
+                <td>
+                  <input type="number" name="donem2_sozlu_{{ ogrenci.id }}" class="form-control" step="0.01"
+                         value="{{ note.donem2_sozlu|default_if_none:'' }}">
+                </td>
+                <td>
+                  {% if note.ortalama2 is not None %}
+                    {{ note.ortalama2|floatformat:2 }}
+                  {% endif %}
+                </td>
+                <td>
+                  {{ note.yil_sonu_ortalama|floatformat:2 }}
+                </td>
+              </tr>
+            {% endwith %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="text-end mt-3">
+      <button type="submit" class="btn btn-success btn-lg">Kaydet</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

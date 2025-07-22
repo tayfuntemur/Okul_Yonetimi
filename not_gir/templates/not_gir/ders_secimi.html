@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ sinif.ad }} Sınıfının Dersleri</h2>
+<ul>
+  {% for ders in dersler %}
+    <li><a href="{% url 'not_gir:toplu_not' sinif.id ders.id %}">{{ ders.ad }}</a>
+</li>
+  {% endfor %}
+</ul>
+{% endblock %}

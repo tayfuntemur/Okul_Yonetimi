@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load form_extras %}
+{% block title %}Giriş Yap{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+  <div class="col-md-5">
+    <div class="card shadow-lg p-4">
+      <div class="card-body">
+        <h3 class="text-center text-primary mb-4">Giris Yap</h3>
+
+        <form method="post">
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="mb-4">
+              <label class="form-label fw-semibold">{{ field.label }}</label>
+              {{ field|add_class:"form-control form-control-md" }}
+              {% if field.errors %}
+                <div class="text-danger small">{{ field.errors }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+
+          <div class="d-flex justify-content-center">
+            <button type="submit" class="btn btn-primary px-5">Login</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
