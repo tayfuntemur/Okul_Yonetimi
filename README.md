@@ -23,3 +23,9 @@
 
 7. Api Sunucusu Baslat:
     uvicorn main:app --reload --port 8001
+
+Ogrencilerin devamsızlık ve notlarını Fastapi ile get yapabiliyoruz.
+
+Proje öncelikle user ekliyor.user lara role veriyor ogrenci veya superuser gibi.
+not girişi ve devamsızlık girişleri yapılıp öğrenciye  bunlar gösteriliyor. ayrıca superuser
+giriş yaptığında toplu not girişi sağlanıyor.
