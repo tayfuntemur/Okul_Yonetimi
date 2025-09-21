@@ -26,7 +26,7 @@ class CustomUserAdmin(UserAdmin):
         ),
     }),
 )
-    search_fields=['email,']
+    search_fields=['email']
     ordering =['first_name']
     list_display=("email", "first_name", "last_name", "role", "is_active", "is_staff")
     list_filter = ('is_active','is_staff','role')

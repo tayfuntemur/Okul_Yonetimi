@@ -17,6 +17,7 @@ AUTH_USER_MODEL = 'users.CustomUser'
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -58,6 +59,26 @@ TEMPLATES = [
         },
     },
 ]
+
+# settings.py
+JAZZMIN_SETTINGS = {
+    'site_title': 'Okul Yönetimi',
+    'site_header': 'Okul Admin Panel',
+    'site_brand': 'Okul Sistemi',
+    # App isimleri
+    'custom_css': None,
+    'custom_js': None,
+    # Model isimleri değiştir
+    'custom_links': {
+        'auth': [{
+            'name': 'Personel Yönetimi',
+            'url': 'admin:auth_user_changelist',
+        }]
+    },
+    
+    # Sıralama
+    'order_with_respect_to': ['ogrenciler', 'dersler', 'devamsizlik', 'not_gir', 'auth'],
+}
 
 WSGI_APPLICATION = 'OkulYonetimi.wsgi.application'
 

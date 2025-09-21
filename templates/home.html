@@ -1,36 +1,64 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-5 text-center">
-<div class="p-5 bg-light rounded shadow">
-    <h1 class="display-5 fw-bold text-primary"> Hoş geldiniz{% if user.first_name %}, {{ user.first_name }}{% endif %}!</h1>
+<div class="container mt-5">
+
+<!-- Hoşgeldin küçük -->
+<div class="p-3 bg-light rounded shadow mb-4">
+    <h4 class="text-primary text-center mb-0">
+        Hoş geldiniz, {{ user.first_name }}!
+    </h4>
 </div>
 
-  <div class="d-flex flex-column flex-md-row justify-content-center gap-4 mt-4">
-
-  {% if user.is_authenticated %}
-    {% if user.role == "ogrenci" %}
-
-    <a href="{% url 'not_gir:ogrenci_notlari' %}" class="btn btn-success btn-lg px-4">
-        📝 Notlarımı Görüntüle
-    </a>
+<!-- Dashboard kartları -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card text-white h-100 gradient-bg shadow">
+            <div class="card-header border-0">
+                <h6 class="card-title mb-0">Toplam Öğrenci</h6>
+            </div>
+            <div class="card-body text-center">
+                <h2 class="card-text">{{ toplam_ogrenci|default:0 }}</h2>
+                <small>Kayıtlı öğrenci</small>
+            </div>
+        </div>
+    </div>
     
-    <a href="{% url 'devamsizlik:ogrenci_devamsizlik' %}" class="btn btn-warning btn-lg px-4">
-      📅 Devamsızlık Durumum
-    </a> 
-  
-    {% elif user.role == "superuser" %}
-    <a href="{% url 'not_gir:sinif-secimi' %}" class="btn btn-success btn-lg px-4">
+    <div class="col-md-3 mb-3">
+        <div class="card text-white h-100 gradient-bg shadow">
+            <div class="card-header border-0">
+                <h6 class="card-title mb-0">Aktif Dersler</h6>
+            </div>
+            <div class="card-body text-center">
+                <h2>{{ toplam_ders|default:0 }}</h2>
+                <small>Mevcut ders</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card text-white h-100 gradient-bg shadow">
+            <div class="card-header border-0">
+                <h6 class="card-title mb-0">Bugün Devamsızlık</h6>
+            </div>
+            <div class="card-body text-center">
+                <h2>{{ bugun_devamsizlik|default:0 }}</h2>
+                <small>Bugünkü devamsızlık</small>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card text-white h-100 gradient-bg shadow">
+            <div class="card-header border-0">
+                <h6 class="card-title mb-0">Toplam Not</h6>
+            </div>
+            <div class="card-body text-center">
+                <h2>{{ toplam_not|default:0 }}</h2>
+                <small>Girilmiş not</small>
+            </div>
+        </div>
+    </div>
+</div>
 
-      📝 Toplu Not Girişi
-    </a> 
-  
-      {% endif %}
-    {% endif %}
-  </div>
-
-
- 
 </div>
 {% endblock %}
-
-

@@ -49,3 +49,16 @@
         white-space: nowrap;
         -webkit-overflow-scrolling: touch;
       }
+     .gradient-bg {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+.btn-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+}
+
+.btn-gradient-primary:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    color: white;
+}
