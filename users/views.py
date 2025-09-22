@@ -11,19 +11,6 @@ from django.contrib.auth import authenticate, login,logout
 def home(request):
     return render(request,'home.html')
 
-def register_view(request):
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Kayıt başarılı! Giriş yapabilirsiniz.")
-            return redirect('login')  # login adında bir URL rotan olduğunu varsayıyoruz
-        else:
-            messages.error(request, "Lütfen formu doğru doldurun.")
-    else:
-        form = CustomUserCreationForm()
-    
-    return render(request, 'users/register.html', {'form': form})
 
         
 def login_view(request):
@@ -58,9 +45,9 @@ def update_user_view(request):
     return render(request, 'users/update.html', {'form': form})
 
             
-@login_required            
+@login_required             
 def logout_view(request):
     logout(request)
     messages.info(request, "Oturum kapatıldı.")
-    return redirect('home')
+    return redirect('users:login_view')
     

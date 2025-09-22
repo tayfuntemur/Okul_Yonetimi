@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📢 Duyurular</h2>
+        <a href="{% url 'home' %}" class="btn btn-secondary">
+            ← Ana Sayfaya Dön
+        </a>
+    </div>
+
+    {% if duyurular %}
+        <div class="row">
+    <div class="col-12">
+        {% for duyuru in duyurular %}
+        <div class="card shadow mb-3">
+            <div class="card-header 
+                {% if duyuru.oncelik == 'acil' %}bg-danger text-white
+                {% elif duyuru.oncelik == 'yuksek' %}bg-warning
+                {% else %}bg-info text-white{% endif %}">
+                <div class="d-flex justify-content-between">
+                    <h5 class="mb-0">{{ duyuru.baslik }}</h5>
+                    {% if duyuru.oncelik == 'yuksek' or duyuru.oncelik == 'acil' %}
+                        <span class="badge bg-dark">ÖNEMLİ</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <p>{{ duyuru.icerik }}</p>
+                <small class="text-muted">
+                    <strong>Yazar:</strong> {{ duyuru.yazar.first_name }} {{ duyuru.yazar.last_name }} | 
+                    <strong>Tarih:</strong> {{ duyuru.olusturma_tarihi|date:"d.m.Y H:i" }}
+                </small>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            <h4>Duyuru Bulunmuyor</h4>
+            <p>Şu anda sizin için aktif bir duyuru bulunmamaktadır.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

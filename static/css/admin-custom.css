@@ -1,0 +1,25 @@
+/* Admin form styling */
+.form-row input[type="text"],
+.form-row input[type="email"],
+.form-row input[type="password"],
+.form-row select,
+.form-row textarea {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 2px solid #ddd;
+}
+
+.submit-row input[type="submit"] {
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+    padding: 12px 30px;
+    font-size: 18px;
+    border-radius: 8px;
+    border: none;
+    color: white;
+}
+
+.field-role select {
+    padding: 15px;
+    font-size: 18px;
+}

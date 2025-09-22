@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'devamsizlik',
     'not_gir',
     'ogrenciler',
+    'duyurular',
 ]
 
 MIDDLEWARE = [

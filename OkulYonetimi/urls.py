@@ -10,4 +10,5 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('devamsizlik/', include('devamsizlik.urls')),
     path('not_gir/', include('not_gir.urls')),
+    path('duyurular/', include('duyurular.urls')),
 ]
