@@ -1,0 +1,55 @@
+/* static/admin/css/ogretmen_atama.css */
+
+.selector {
+    position: relative;
+    transition: opacity 0.3s ease;
+}
+
+.loading-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #666;
+    z-index: 1000;
+}
+
+.custom-message {
+    animation: slideIn 0.3s ease-in-out;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Admin panel özel stilleri */
+.field-dersler .selector {
+    min-height: 200px;
+}
+
+.field-dersler .help {
+    color: #666;
+    font-size: 11px;
+    margin-top: 5px;
+}
+
+/* Responsive düzenlemeler */
+@media (max-width: 768px) {
+    .selector {
+        font-size: 14px;
+    }
+    
+    .loading-spinner {
+        font-size: 12px;
+        padding: 8px;
+    }
+}

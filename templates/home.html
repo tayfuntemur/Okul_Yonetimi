@@ -36,9 +36,9 @@
         
         <div class="row mt-4">
             <div class="col-12 text-center">
-                <a href="#" class="btn btn-gradient-primary btn-lg mx-2 px-4">📝 Notlarım</a>
-                <a href="#" class="btn btn-info btn-lg mx-2 px-4">📅 Devamsızlıklarım</a>
-                <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-warning btn-lg mx-2 px-4">Duyurular</a>
+                <a href="{% url 'not_gir:ogrenci_notlari' %}" class="btn btn-gradient-primary btn-lg mx-2 px-4">📝 Notlarım</a>
+                <a href="{% url 'devamsizlik:ogrenci_devamsizliklari' %}" class="btn btn-info btn-lg mx-2 px-4">📅 Devamsızlıklarım</a>
+                <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-warning btn-lg mx-2 px-4">📢 Duyurular</a>
             </div>
         </div>
 
@@ -81,9 +81,9 @@
         
         <div class="row mt-4">
             <div class="col-12 text-center">
-                <a href="#" class="btn btn-gradient-primary btn-lg mx-2 px-4">📝 Not Gir</a>
-                <a href="#" class="btn btn-warning btn-lg mx-2 px-4">📅 Devamsızlık İşle</a>
-                <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-warning btn-lg mx-2 px-4">Duyurular</a>
+                <a href="{% url 'not_gir:not_girisi' %}" class="btn btn-gradient-primary btn-lg mx-2 px-4">📝 Not Gir</a>
+                <a href="{% url 'devamsizlik:yoklama_al' %}" class="btn btn-warning btn-lg mx-2 px-4">📋 Yoklama Al</a>
+                <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-info btn-lg mx-2 px-4">📢 Duyurular</a>
             </div>
         </div>
 
@@ -135,34 +135,89 @@
             </div>
         </div>
 
-        <!-- Duyurular -->
-        <div class="row mt-4">
-            <div class="col-md-6 mb-3">
-                <div class="card gradient-bg text-white h-100 shadow">
+        <!-- İkinci satır: Duyurular ve Sistem Yönetimi kartları -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card text-white h-100 gradient-bg shadow">
                     <div class="card-header border-0">
-                        <h6 class="card-title mb-0">Duyurular</h6>
+                        <h6 class="card-title mb-0">📢 Duyurular</h6>
                     </div>
                     <div class="card-body text-center">
-                        <p>Okul duyurularını görüntüle</p>
-                        <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-light btn-lg px-4">
-                            Duyuruları Göster
-                        </a>
+                        <h2>{{ toplam_duyuru|default:0 }}</h2>
+                        <small>Aktif duyuru</small>
+                        <div class="mt-2">
+                            <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-light btn-sm">
+                                Görüntüle
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white h-100 gradient-bg shadow">
+                    <div class="card-header border-0">
+                        <h6 class="card-title mb-0">👥 Kullanıcı Yönetimi</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <h2>{{ toplam_kullanici|default:0 }}</h2>
+                        <small>Toplam kullanıcı</small>
+                        <div class="mt-2">
+                            <a href="/admin/users/customuser/add/" class="btn btn-light btn-sm">
+                                Yeni Ekle
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white h-100 gradient-bg shadow">
+                    <div class="card-header border-0">
+                        <h6 class="card-title mb-0">⚙️ Sistem Ayarları</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="mb-2">Admin Panel</h5>
+                        <small>Tüm ayarlar</small>
+                        <div class="mt-2">
+                            <a href="/admin/" class="btn btn-light btn-sm">
+                                Yönet
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white h-100 gradient-bg shadow">
+                    <div class="card-header border-0">
+                        <h6 class="card-title mb-0">📊 Raporlar</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="mb-2">Okul Raporu</h5>
+                        <small>İstatistikler</small>
+                        <div class="mt-2">
+                            <a href="#" class="btn btn-light btn-sm">
+                                Görüntüle
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row mt-5">
-            <div class="col-12">
-                <div class="card gradient-bg text-white shadow">
-                    <div class="card-header">
-                        <h5 class="mb-0">⚙️ Sistem Yönetimi</h5>
-                    </div>
-                    <div class="card-body text-center">
-                        <a href="/admin/users/customuser/add/" class="btn btn-light btn-lg mx-2 px-4">
-                            👥 Yeni Kullanıcı Ekle
-                        </a>
-                    </div>
-                </div>
+
+        <!-- Hızlı Erişim Butonları -->
+        <div class="row mt-4">
+            <div class="col-12 text-center">
+                <a href="/admin/ogrenciler/sinifdersatama/" class="btn btn-gradient-primary btn-lg mx-2 px-4">
+                    📚 Sınıf-Ders Ataması
+                </a>
+                <a href="/admin/not_gir/dersnotu/" class="btn btn-info btn-lg mx-2 px-4">
+                    📝 Not Yönetimi
+                </a>
+                <a href="/admin/duyurular/duyuru/" class="btn btn-warning btn-lg mx-2 px-4">
+                    📢 Duyuru Yönetimi
+                </a>
+                <a href="/admin/users/customuser/" class="btn btn-success btn-lg mx-2 px-4">
+                    👥 Kullanıcı Listesi
+                </a>
             </div>
         </div>
 
@@ -197,7 +252,7 @@
                 <a href="#" class="btn btn-gradient-primary btn-lg mx-2 px-4">🔧 Arıza Bildirimi</a>
                 <a href="#" class="btn btn-warning btn-lg mx-2 px-4">📋 Günlük Rapor</a>
                 <a href="#" class="btn btn-info btn-lg mx-2 px-4">📅 Vardiya Programı</a>
-                <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-warning btn-lg mx-2 px-4">Duyurular</a>
+                <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-warning btn-lg mx-2 px-4">📢 Duyurular</a>
             </div>
         </div>
         
@@ -218,7 +273,6 @@
         </div>
     
     {% endif %}
-
 
 </div>
 {% endblock %}

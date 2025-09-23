@@ -1,14 +1,18 @@
 
 from django.contrib import admin
 from django.urls import path, include
-from . import views  # Ana views.py
+from . import views
 
 # OkulYonetimi/urls.py
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.home, name='home'),  # Sadece bu
+    path('', views.home, name='home'),
     path('users/', include('users.urls')),
     path('devamsizlik/', include('devamsizlik.urls')),
-    path('not_gir/', include('not_gir.urls')),
+    path('not-gir/', include('not_gir.urls')),  # Tire ile daha güzel
     path('duyurular/', include('duyurular.urls')),
+    
+    # Eksik olanlar:
+    path('ogrenciler/', include('ogrenciler.urls')),  # Öğrenci yönetimi
+    # path('dersler/', include('dersler.urls')),        # Ders yönetimi
 ]

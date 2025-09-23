@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% load get_item %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary">📝 Not Girişi</h2>
+                <div class="badge bg-info fs-6">
+                    {{ user.get_full_name }} - {{ user.get_role_display }}
+                </div>
+            </div>
+
+            <!-- Sınıf ve Ders Seçimi -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <form method="get" class="d-flex gap-3">
+                        <div class="flex-fill">
+                            <label class="form-label">Sınıf Seçin:</label>
+                            <select name="sinif_id" class="form-select" onchange="this.form.submit()">
+                                <option value="">-- Sınıf Seçin --</option>
+                                {% for sinif in siniflar %}
+                                    <option value="{{ sinif.id }}" 
+                                            {% if sinif.id|stringformat:"s" == request.GET.sinif_id %}selected{% endif %}>
+                                        {% if sinif.sinif_seviye == 'anasinif' %}
+                                            Ana Sınıfı
+                                        {% else %}
+                                            {{ sinif.sinif_seviye }}. Sınıf
+                                        {% endif %}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        {% if selected_sinif %}
+                        <div class="flex-fill">
+                            <label class="form-label">Ders Seçin:</label>
+                            <select name="ders_id" class="form-select" onchange="this.form.submit()">
+                                <option value="">-- Ders Seçin --</option>
+                                {% for ders in available_dersler %}
+                                    <option value="{{ ders.id }}" 
+                                            {% if ders.id|stringformat:"s" == request.GET.ders_id %}selected{% endif %}>
+                                        {{ ders.ad }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endif %}
+                    </form>
+                </div>
+                
+                {% if selected_sinif and selected_ders %}
+                <div class="col-md-6 text-end">
+                    <div class="alert alert-info mb-0">
+                        <strong>Seçili:</strong> 
+                        {% if selected_sinif.sinif_seviye == 'anasinif' %}
+                            Ana Sınıfı
+                        {% else %}
+                            {{ selected_sinif.sinif_seviye }}. Sınıf
+                        {% endif %}
+                        - {{ selected_ders.ad }}
+                        <br>
+                        <small>{{ ogrenciler.count }} öğrenci</small>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if ogrenciler %}
+                <!-- Not Girişi Tablosu -->
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            {% if selected_sinif.sinif_seviye == 'anasinif' %}
+                                Ana Sınıfı
+                            {% else %}
+                                {{ selected_sinif.sinif_seviye }}. Sınıf
+                            {% endif %}
+                            - {{ selected_ders.ad }} Dersi Not Girişi
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover align-middle text-center mb-0">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th rowspan="2" class="align-middle">Öğrenci</th>
+                                            <th colspan="4" class="text-center text-warning">🥇 1. Dönem</th>
+                                            <th colspan="4" class="text-center text-info">🥈 2. Dönem</th>
+                                            <th rowspan="2" class="align-middle text-success">🏆 Yıl Sonu</th>
+                                        </tr>
+                                        <tr>
+                                            <th>Test</th>
+                                            <th>Yazılı</th>
+                                            <th>Sözlü</th>
+                                            <th class="text-warning">Ort.</th>
+                                            <th>Test</th>
+                                            <th>Yazılı</th>
+                                            <th>Sözlü</th>
+                                            <th class="text-info">Ort.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for ogrenci in ogrenciler %}
+                                            {% with note=notlar_dict|get_item:ogrenci.id %}
+                                                <tr>
+                                                    <td class="text-start">
+                                                        <strong>{{ ogrenci.ad_soyad }}</strong><br>
+                                                        <small class="text-muted">{{ ogrenci.sinif_info }} - {{ ogrenci.okul_numarasi }}</small>
+                                                    </td>
+                                                    
+                                                    <!-- 1. Dönem -->
+                                                    <td>
+                                                        <input type="number" 
+                                                               name="donem1_test_{{ ogrenci.id }}" 
+                                                               class="form-control form-control-sm" 
+                                                               step="0.01" min="0" max="100"
+                                                               value="{{ note.donem1_test|default_if_none:'' }}">
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" 
+                                                               name="donem1_yazili_{{ ogrenci.id }}" 
+                                                               class="form-control form-control-sm" 
+                                                               step="0.01" min="0" max="100"
+                                                               value="{{ note.donem1_yazili|default_if_none:'' }}">
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" 
+                                                               name="donem1_sozlu_{{ ogrenci.id }}" 
+                                                               class="form-control form-control-sm" 
+                                                               step="0.01" min="0" max="100"
+                                                               value="{{ note.donem1_sozlu|default_if_none:'' }}">
+                                                    </td>
+                                                    <td class="bg-light">
+                                                        {% if note.ortalama1 %}
+                                                            <strong class="text-warning">{{ note.ortalama1|floatformat:1 }}</strong>
+                                                        {% else %}
+                                                            <span class="text-muted">-</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    
+                                                    <!-- 2. Dönem -->
+                                                    <td>
+                                                        <input type="number" 
+                                                               name="donem2_test_{{ ogrenci.id }}" 
+                                                               class="form-control form-control-sm" 
+                                                               step="0.01" min="0" max="100"
+                                                               value="{{ note.donem2_test|default_if_none:'' }}">
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" 
+                                                               name="donem2_yazili_{{ ogrenci.id }}" 
+                                                               class="form-control form-control-sm" 
+                                                               step="0.01" min="0" max="100"
+                                                               value="{{ note.donem2_yazili|default_if_none:'' }}">
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" 
+                                                               name="donem2_sozlu_{{ ogrenci.id }}" 
+                                                               class="form-control form-control-sm" 
+                                                               step="0.01" min="0" max="100"
+                                                               value="{{ note.donem2_sozlu|default_if_none:'' }}">
+                                                    </td>
+                                                    <td class="bg-light">
+                                                        {% if note.ortalama2 %}
+                                                            <strong class="text-info">{{ note.ortalama2|floatformat:1 }}</strong>
+                                                        {% else %}
+                                                            <span class="text-muted">-</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    
+                                                    <!-- Yıl Sonu -->
+                                                    <td class="bg-light">
+                                                        {% if note.yil_sonu_ortalama %}
+                                                            {% if note.yil_sonu_ortalama >= 85 %}
+                                                                <strong class="text-success">{{ note.yil_sonu_ortalama|floatformat:1 }}</strong>
+                                                            {% elif note.yil_sonu_ortalama >= 70 %}
+                                                                <strong class="text-primary">{{ note.yil_sonu_ortalama|floatformat:1 }}</strong>
+                                                            {% elif note.yil_sonu_ortalama >= 45 %}
+                                                                <strong class="text-warning">{{ note.yil_sonu_ortalama|floatformat:1 }}</strong>
+                                                            {% else %}
+                                                                <strong class="text-danger">{{ note.yil_sonu_ortalama|floatformat:1 }}</strong>
+                                                            {% endif %}
+                                                        {% else %}
+                                                            <span class="text-muted">-</span>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% endwith %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="card-footer text-end">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    💾 Notları Kaydet
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+            {% elif selected_sinif and selected_ders %}
+                <!-- Öğrenci Yok Mesajı -->
+                <div class="alert alert-warning text-center">
+                    <h5>Bu sınıfta öğrenci bulunamadı</h5>
+                    <p>Seçilen sınıfa henüz öğrenci kaydedilmemiş.</p>
+                </div>
+                
+            {% elif selected_sinif %}
+                <!-- Ders Seçimi Bekleniyor -->
+                <div class="alert alert-info text-center">
+                    <h5>Ders Seçin</h5>
+                    <p>Not girişi yapmak için yukarıdan bir ders seçin.</p>
+                </div>
+                
+            {% else %}
+                <!-- Başlangıç Durumu -->
+                <div class="text-center py-5">
+                    <div class="card border-0">
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <i class="fas fa-graduation-cap fa-5x text-muted"></i>
+                            </div>
+                            <h4 class="text-muted">Not Girişine Hoş Geldiniz</h4>
+                            <p class="text-muted">Başlamak için yukarıdan bir sınıf seçin.</p>
+                            
+                            {% if user.role == 'ogretmen' %}
+                                <div class="alert alert-info mt-3">
+                                    <strong>Öğretmen Yetkileri:</strong><br>
+                                    Sadece atandığınız sınıf ve dersleri görürsünüz.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

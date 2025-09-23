@@ -1,46 +1,67 @@
+# devamsizlik/models.py - SADECE VERİ YAPISI
 from django.db import models
+from django.utils import timezone
+
 
 class Devamsizlik(models.Model):
-    ogrenci = models.ForeignKey('ogrenciler.Ogrenci', on_delete=models.CASCADE)
-    
-    DONEM_CHOICES = (
-        (1, "1. Dönem"),
-        (2, "2. Dönem"),
-    )
-    donem = models.IntegerField(choices=DONEM_CHOICES, default=1)
-
+    """
+    Günlük devamsızlık kayıtları
+    """
     MAZERET_CHOICES = [
-        ('rapor', 'Rapor'),
-        ('turnuva', 'Turnuva'),
+        ('izinli', 'İzinli'),
+        ('rapor', 'Sağlık Raporu'),
         ('olum_izni', 'Ölüm İzni'),
-        ('hava_degisimi', 'Hava Değişimi'), 
+        ('aile_izni', 'Aile İzni'),
         ('mazeretsiz', 'Mazeretsiz'),
     ]
     
-    mazeret = models.CharField(max_length=30, choices=MAZERET_CHOICES, default='rapor')  
-    devamsizlik_tarihi = models.DateField()
-    gun_sayisi = models.IntegerField(null=True, blank=True)
-    donem1_devamsizlik = models.IntegerField(null=True, blank=True)
-    donem2_devamsizlik = models.IntegerField(null=True, blank=True)
-    yil_toplam_devamsizlik = models.IntegerField(null=True, blank=True)
-
+    ogrenci = models.ForeignKey(
+        'ogrenciler.Ogrenci', 
+        on_delete=models.CASCADE,
+        verbose_name="Öğrenci"
+    )
+    
+    tarih = models.DateField(
+        verbose_name="Devamsızlık Tarihi",
+        default=timezone.now
+    )
+    
+    mazeret = models.CharField(
+        max_length=20, 
+        choices=MAZERET_CHOICES,
+        default='mazeretsiz',
+        verbose_name="Mazeret Türü"
+    )
+    
+    ders_sayisi = models.PositiveIntegerField(
+        default=1,
+        verbose_name="Devamsız Olunan Ders Sayısı"
+    )
+    
+    aciklama = models.TextField(
+        blank=True, null=True,
+        verbose_name="Açıklama"
+    )
+    
+    kaydeden = models.ForeignKey(
+        'users.CustomUser',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        verbose_name="Kaydeden Kişi"
+    )
+    
+    olusturma_tarihi = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = "Devamsızlık"
+        verbose_name_plural = "Devamsızlıklar"
+        ordering = ['-tarih']
+        unique_together = ['ogrenci', 'tarih']
+    
     def __str__(self):
-        return f"{self.ogrenci} - {self.mazeret} - {self.devamsizlik_tarihi}"
-
-    def kayit_tarihi_sade(self):
-        return self.devamsizlik_tarihi.strftime('%Y-%m-%d')
-
-
-    @staticmethod
-    def toplam_devamsizlik_donem(ogrenci, donem):
-        """
-        Verilen öğrenci ve döneme göre, devamsızlık toplamını döndürür.
-        """
-        kayitlar = Devamsizlik.objects.filter(ogrenci=ogrenci, donem=donem)
-        return sum(k.gun_sayisi or 0 for k in kayitlar)
-
-    @staticmethod
-    def yil_sonu_toplam_devamsizlik(ogrenci):
-        d1 = Devamsizlik.toplam_devamsizlik_donem(ogrenci, 1)
-        d2 = Devamsizlik.toplam_devamsizlik_donem(ogrenci, 2)
-        return d1 + d2
+        return f"{self.ogrenci} - {self.tarih} ({self.get_mazeret_display()})"
+    
+    @property
+    def mazeretli_mi(self):
+        """Basit property"""
+        return self.mazeret != 'mazeretsiz'

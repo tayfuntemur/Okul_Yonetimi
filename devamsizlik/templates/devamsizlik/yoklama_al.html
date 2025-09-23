@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+{% load get_item %}
+{% block title %}Yoklama Al{% endblock %}
+
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary">📋 Yoklama Al</h2>
+                <div class="badge bg-info fs-6">
+                    {{ user.get_full_name }} - {{ user.get_role_display }}
+                </div>
+            </div>
+
+            <!-- Sınıf ve Tarih Seçimi -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Sınıf ve Tarih Seçimi</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                       <!-- Tarih Seçimi -->
+                        <div class="col-md-3">
+                            <label class="form-label">📅 Tarih:</label>
+                            {% if user_role == 'ogretmen' %}
+                                <!-- Öğretmen sadece bugünün tarihini görebilir -->
+                                <input type="date" name="tarih" class="form-control" 
+                                    value="{{ selected_tarih }}" readonly>
+                                <small class="text-muted">Sadece bugünkü yoklamayı alabilirsiniz</small>
+                            {% else %}
+                                <!-- Admin farklı tarihleri seçebilir -->
+                                <input type="date" name="tarih" class="form-control" 
+                                    value="{{ selected_tarih }}" onchange="this.form.submit()">
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Sınıf Seçimi -->
+                        <div class="col-md-4">
+                            <label class="form-label">🎓 Sınıf Seviyesi:</label>
+                            <select name="sinif_seviye" class="form-select" onchange="this.form.submit()">
+                                <option value="">-- Sınıf Seçin --</option>
+                                {% if user_role == 'ogretmen' %}
+                                    {% if siniflar|length == 1 %}
+                                        <!-- Öğretmenin tek sınıfı varsa dropdown göstermeyelim -->
+                                        <input type="hidden" name="sinif_seviye" value="{{ siniflar.0.sinif_seviye }}">
+                                        <input type="hidden" name="sube" value="{{ siniflar.0.sube }}">
+                                        <p><strong>{{ siniflar.0.sinif_seviye }}-{{ siniflar.0.sube }}</strong> sınıfı için yoklama alıyorsunuz.</p>
+                                    {% else %}
+                                        <!-- Birden fazla sınıfa atanmışsa dropdown göster -->
+                                        <select name="sinif_seviye" class="form-select" onchange="this.form.submit()">
+                                            {% for atama in siniflar %}
+                                                <option value="{{ atama.sinif_seviye }}" 
+                                                        {% if atama.sinif_seviye == selected_sinif %}selected{% endif %}>
+                                                    {{ atama.sinif_seviye }}-{{ atama.sube }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    {% endif %}
+                                {% endif %}
+
+                            </select>
+                        </div>
+                        
+                        <!-- Şube Seçimi - YENİ KOD -->
+                        {% if selected_sinif %}
+                        <div class="col-md-3">
+                            <label class="form-label">🏫 Şube:</label>
+                            <select name="sube" class="form-select" onchange="this.form.submit()">
+                                <option value="">-- Şube Seçin --</option>
+                                {% if user_role == 'ogretmen' %}
+                                    <!-- Öğretmen sadece yetkili olduğu şubeleri görür -->
+                                    {% for sinif in siniflar %}
+                                        {% if sinif.sinif_seviye == selected_sinif and sinif.sube %}
+                                            <option value="{{ sinif.sube }}" {% if selected_sube == sinif.sube %}selected{% endif %}>
+                                                {{ sinif.sube }}
+                                            </option>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <!-- Admin tüm şubeleri görebilir -->
+                                    <option value="A" {% if selected_sube == 'A' %}selected{% endif %}>A</option>
+                                    <option value="B" {% if selected_sube == 'B' %}selected{% endif %}>B</option>
+                                    <option value="C" {% if selected_sube == 'C' %}selected{% endif %}>C</option>
+                                    <option value="D" {% if selected_sube == 'D' %}selected{% endif %}>D</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-outline-primary">
+                                🔍 Filtrele
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if ogrenciler %}
+                <!-- Yoklama Formu -->
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                {% if selected_sinif == 'anasinif' %}
+                                    Ana Sınıfı
+                                {% else %}
+                                    {{ selected_sinif }}. Sınıf
+                                {% endif %}
+                                {% if selected_sube %} - {{ selected_sube }} Şubesi{% endif %}
+                                Yoklama Listesi
+                            </h5>
+                            <div class="badge bg-light text-dark fs-6">
+                                {{ selected_tarih }} | {{ ogrenciler|length }} Öğrenci
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-0">
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <!-- Hızlı İşlemler -->
+                            <div class="p-3 border-bottom bg-light">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <button type="button" class="btn btn-sm btn-success me-2" onclick="selectAll(true)">
+                                            ✅ Tümünü Seç
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-danger me-2" onclick="selectAll(false)">
+                                            ❌ Tümünü Kaldır
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6 text-end">
+                                        <small class="text-muted">
+                                            💡 İpucu: Devamsız öğrencileri işaretleyin
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Öğrenci Listesi -->
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th style="width: 60px;">Devamsız</th>
+                                            <th>Öğrenci Bilgileri</th>
+                                            <th style="width: 150px;">Mazeret</th>
+                                            <th style="width: 120px;">Ders Sayısı</th>
+                                            <th>Açıklama</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for ogrenci in ogrenciler %}
+                                            {% with devamsizlik=devamsizliklar|default_if_none:''|get_item:ogrenci.id %}
+                                                <tr class="{% if devamsizlik %}table-warning{% endif %}">
+                                                    <td class="text-center">
+                                                        <input type="checkbox" 
+                                                               name="devamsiz_{{ ogrenci.id }}" 
+                                                               class="form-check-input devamsiz-checkbox" 
+                                                               {% if devamsizlik %}checked{% endif %}
+                                                               onchange="toggleRow(this)">
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="me-3">
+                                                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                                                     style="width: 40px; height: 40px; font-size: 14px; font-weight: bold;">
+                                                                    {{ ogrenci.ad_soyad|slice:":2"|upper }}
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <strong>{{ ogrenci.ad_soyad }}</strong><br>
+                                                                <small class="text-muted">
+                                                                    {{ ogrenci.sinif_info }} - No: {{ ogrenci.okul_numarasi }}
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <select name="mazeret_{{ ogrenci.id }}" 
+                                                                class="form-select form-select-sm mazeret-select" 
+                                                                {% if not devamsizlik %}disabled{% endif %}>
+                                                            {% for value, label in mazeret_choices %}
+                                                                <option value="{{ value }}" 
+                                                                        {% if devamsizlik and devamsizlik.mazeret == value %}selected
+                                                                        {% elif not devamsizlik and value == 'mazeretsiz' %}selected{% endif %}>
+                                                                    {{ label }}
+                                                                </option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" 
+                                                               name="ders_sayisi_{{ ogrenci.id }}" 
+                                                               class="form-control form-control-sm ders-input" 
+                                                               value="{{ devamsizlik.ders_sayisi|default:1 }}" 
+                                                               min="1" max="8"
+                                                               {% if not devamsizlik %}disabled{% endif %}>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" 
+                                                               name="aciklama_{{ ogrenci.id }}" 
+                                                               class="form-control form-control-sm aciklama-input" 
+                                                               value="{{ devamsizlik.aciklama|default:'' }}" 
+                                                               placeholder="Açıklama..."
+                                                               {% if not devamsizlik %}disabled{% endif %}>
+                                                    </td>
+                                                </tr>
+                                            {% endwith %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Kaydet Butonu -->
+                            <div class="card-footer text-center">
+                                <button type="submit" class="btn btn-success btn-lg px-5">
+                                    💾 Yoklamayı Kaydet
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+            {% elif selected_sinif %}
+                <!-- Öğrenci Yok -->
+                <div class="alert alert-warning text-center">
+                    <h5>Bu sınıfta öğrenci bulunamadı</h5>
+                    <p>Seçilen sınıfa henüz öğrenci kaydedilmemiş veya erişim yetkiniz yok.</p>
+                </div>
+                
+            {% else %}
+                <!-- Başlangıç Durumu -->
+                <div class="text-center py-5">
+                    <div class="card border-0">
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <i class="fas fa-clipboard-check fa-5x text-muted"></i>
+                            </div>
+                            <h4 class="text-muted">Yoklama Almaya Hoş Geldiniz</h4>
+                            <p class="text-muted">Başlamak için yukarıdan tarih ve sınıf seçin.</p>
+                            
+                            {% if user_role == 'ogretmen' %}
+                                <div class="alert alert-info mt-3">
+                                    <strong>Öğretmen Yetkileri:</strong><br>
+                                    Sadece atandığınız sınıflara yoklama alabilirsiniz.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+        </div>
+    </div>
+</div>
+
+<script>
+// JavaScript fonksiyonları
+function selectAll(checked) {
+    const checkboxes = document.querySelectorAll('.devamsiz-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = checked;
+        toggleRow(cb);
+    });
+}
+
+function toggleRow(checkbox) {
+    const row = checkbox.closest('tr');
+    const mazeretSelect = row.querySelector('.mazeret-select');
+    const dersInput = row.querySelector('.ders-input');
+    const aciklamaInput = row.querySelector('.aciklama-input');
+    
+    if (checkbox.checked) {
+        row.classList.add('table-warning');
+        mazeretSelect.disabled = false;
+        dersInput.disabled = false;
+        aciklamaInput.disabled = false;
+    } else {
+        row.classList.remove('table-warning');
+        mazeretSelect.disabled = true;
+        dersInput.disabled = true;
+        aciklamaInput.disabled = true;
+        // Değerleri sıfırla
+        mazeretSelect.value = 'mazeretsiz';
+        dersInput.value = 1;
+        aciklamaInput.value = '';
+    }
+}
+
+// Sayfa yüklendiğinde mevcut seçimleri kontrol et
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.devamsiz-checkbox').forEach(cb => {
+        toggleRow(cb);
+    });
+});
+</script>
+{% endblock %}

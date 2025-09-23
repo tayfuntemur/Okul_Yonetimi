@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% block title %}Devamsızlık Listesi{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary">📋 Devamsızlık Kayıtları</h2>
+        <div>
+            <a href="{% url 'devamsizlik:yoklama_al' %}" class="btn btn-success">
+                ➕ Yoklama Al
+            </a>
+            <a href="{% url 'devamsizlik:devamsizlik_raporu' %}" class="btn btn-info">
+                📊 Raporlar
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtreleme -->
+    <div class="card shadow mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">🔍 Filtreleme</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-2">
+                    <label class="form-label">Sınıf:</label>
+                    <select name="sinif_seviye" class="form-select">
+                        <option value="">Tümü</option>
+                        <option value="anasinif" {% if sinif_seviye == 'anasinif' %}selected{% endif %}>Ana Sınıfı</option>
+                        <option value="1" {% if sinif_seviye == '1' %}selected{% endif %}>1. Sınıf</option>
+                        <option value="2" {% if sinif_seviye == '2' %}selected{% endif %}>2. Sınıf</option>
+                        <option value="3" {% if sinif_seviye == '3' %}selected{% endif %}>3. Sınıf</option>
+                        <option value="4" {% if sinif_seviye == '4' %}selected{% endif %}>4. Sınıf</option>
+                        <option value="5" {% if sinif_seviye == '5' %}selected{% endif %}>5. Sınıf</option>
+                        <option value="6" {% if sinif_seviye == '6' %}selected{% endif %}>6. Sınıf</option>
+                        <option value="7" {% if sinif_seviye == '7' %}selected{% endif %}>7. Sınıf</option>
+                        <option value="8" {% if sinif_seviye == '8' %}selected{% endif %}>8. Sınıf</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Şube:</label>
+                    <select name="sube" class="form-select">
+                        <option value="">Tümü</option>
+                        <option value="A" {% if sube == 'A' %}selected{% endif %}>A</option>
+                        <option value="B" {% if sube == 'B' %}selected{% endif %}>B</option>
+                        <option value="C" {% if sube == 'C' %}selected{% endif %}>C</option>
+                        <option value="D" {% if sube == 'D' %}selected{% endif %}>D</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Mazeret:</label>
+                    <select name="mazeret" class="form-select">
+                        <option value="">Tümü</option>
+                        {% for value, label in mazeret_choices %}
+                            <option value="{{ value }}" {% if mazeret == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Başlangıç:</label>
+                    <input type="date" name="baslangic_tarih" class="form-control" value="{{ baslangic_tarih }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Bitiş:</label>
+                    <input type="date" name="bitis_tarih" class="form-control" value="{{ bitis_tarih }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Filtrele</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Devamsızlık Listesi -->
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Devamsızlık Kayıtları</h5>
+        </div>
+        <div class="card-body p-0">
+            {% if devamsizliklar %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Öğrenci</th>
+                                <th>Sınıf</th>
+                                <th>Tarih</th>
+                                <th>Mazeret</th>
+                                <th>Ders Sayısı</th>
+                                <th>Açıklama</th>
+                                <th>Kaydeden</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for devamsizlik in devamsizliklar %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ devamsizlik.ogrenci.ad_soyad }}</strong><br>
+                                        <small class="text-muted">No: {{ devamsizlik.ogrenci.okul_numarasi }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ devamsizlik.ogrenci.sinif_info }}</span>
+                                    </td>
+                                    <td>{{ devamsizlik.tarih|date:"d.m.Y" }}</td>
+                                    <td>
+                                        {% if devamsizlik.mazeret == 'mazeretsiz' %}
+                                            <span class="badge bg-danger">{{ devamsizlik.get_mazeret_display }}</span>
+                                        {% elif devamsizlik.mazeret == 'izinli' %}
+                                            <span class="badge bg-success">{{ devamsizlik.get_mazeret_display }}</span>
+                                        {% elif devamsizlik.mazeret == 'rapor' %}
+                                            <span class="badge bg-warning">{{ devamsizlik.get_mazeret_display }}</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ devamsizlik.get_mazeret_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">{{ devamsizlik.ders_sayisi }}</td>
+                                    <td>{{ devamsizlik.aciklama|default:"-" }}</td>
+                                    <td>
+                                        {% if devamsizlik.kaydeden %}
+                                            {{ devamsizlik.kaydeden.get_full_name }}
+                                        {% else %}
+                                            <em class="text-muted">Sistem</em>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-clipboard fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Devamsızlık kaydı bulunamadı</h5>
+                    <p class="text-muted">Seçilen kriterlere uygun devamsızlık kaydı yok.</p>
+                    <a href="{% url 'devamsizlik:yoklama_al' %}" class="btn btn-primary">
+                        Yoklama Al
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

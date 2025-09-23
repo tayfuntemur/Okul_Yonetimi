@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% block title %}Devamsızlıklarım{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary">📅 Devamsızlıklarım</h2>
+                <div class="badge bg-info fs-6">
+                    {{ ogrenci.sinif_info }} - {{ ogrenci.ad_soyad }}
+                </div>
+            </div>
+
+            <!-- İstatistik Kartları -->
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-warning text-white h-100 shadow">
+                        <div class="card-body text-center">
+                            <h3>{{ toplam_gun }}</h3>
+                            <p class="mb-0">Toplam Devamsızlık</p>
+                            <small>{{ bu_yil }} yılı</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-success text-white h-100 shadow">
+                        <div class="card-body text-center">
+                            <h3>{{ mazeretli_gun }}</h3>
+                            <p class="mb-0">Mazeretli</p>
+                            <small>İzinli devamsızlık</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-danger text-white h-100 shadow">
+                        <div class="card-body text-center">
+                            <h3>{{ mazeretsiz_gun }}</h3>
+                            <p class="mb-0">Mazeretsiz</p>
+                            <small>İzinsiz devamsızlık</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card bg-info text-white h-100 shadow">
+                        <div class="card-body text-center">
+                            <h3>{{ donem1_devamsizlik }}</h3>
+                            <p class="mb-0">1. Dönem</p>
+                            <small>Eylül - Ocak</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mazeret Türü Dağılımı -->
+            {% if mazeret_stats %}
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card shadow">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0">Mazeret Türü Dağılımı</h5>
+                        </div>
+                        <div class="card-body">
+                            {% for stat in mazeret_stats %}
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span>
+                                        {% if stat.mazeret == 'mazeretsiz' %}
+                                            <span class="badge bg-danger">Mazeretsiz</span>
+                                        {% elif stat.mazeret == 'izinli' %}
+                                            <span class="badge bg-success">İzinli</span>
+                                        {% elif stat.mazeret == 'rapor' %}
+                                            <span class="badge bg-warning">Sağlık Raporu</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ stat.mazeret|capfirst }}</span>
+                                        {% endif %}
+                                    </span>
+                                    <strong>{{ stat.count }} gün</strong>
+                                </div>
+                                <div class="progress mb-3" style="height: 8px;">
+                                    <div class="progress-bar" style="width: {{ stat.oran }}%"></div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Dönemsel Dağılım</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="border-end">
+                                        <h4 class="text-info">{{ donem1_devamsizlik }}</h4>
+                                        <p class="mb-0">1. Dönem</p>
+                                        <small class="text-muted">Eyl - Oca</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <h4 class="text-warning">{{ donem2_devamsizlik }}</h4>
+                                    <p class="mb-0">2. Dönem</p>
+                                    <small class="text-muted">Şub - Haz</small>
+                                </div>
+                            </div>
+                            {% if toplam_gun > 0 %}
+                                <div class="mt-3">
+                                    <div class="progress">
+                                        <div class="progress-bar bg-info" style="width: {{ donem1_oran }}%">
+                                            {{ donem1_oran }}%
+                                        </div>
+                                        <div class="progress-bar bg-warning" style="width: {{ donem2_oran }}%">
+                                            {{ donem2_oran }}%
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Devamsızlık Detayları -->
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Devamsızlık Detayları</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if devamsizliklar %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Tarih</th>
+                                        <th>Mazeret Türü</th>
+                                        <th>Ders Sayısı</th>
+                                        <th>Açıklama</th>
+                                        <th>Dönem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for devamsizlik in devamsizliklar %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ devamsizlik.tarih|date:"d.m.Y" }}</strong><br>
+                                                <small class="text-muted">{{ devamsizlik.tarih|date:"l" }}</small>
+                                            </td>
+                                            <td>
+                                                {% if devamsizlik.mazeret == 'mazeretsiz' %}
+                                                    <span class="badge bg-danger">{{ devamsizlik.get_mazeret_display }}</span>
+                                                {% elif devamsizlik.mazeret == 'izinli' %}
+                                                    <span class="badge bg-success">{{ devamsizlik.get_mazeret_display }}</span>
+                                                {% elif devamsizlik.mazeret == 'rapor' %}
+                                                    <span class="badge bg-warning text-dark">{{ devamsizlik.get_mazeret_display }}</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ devamsizlik.get_mazeret_display }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-light text-dark">{{ devamsizlik.ders_sayisi }} ders</span>
+                                            </td>
+                                            <td>{{ devamsizlik.aciklama|default:"-" }}</td>
+                                            <td>
+                                                {% if devamsizlik.tarih.month <= 1 or devamsizlik.tarih.month >= 9 %}
+                                                    <span class="badge bg-info">1. Dönem</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">2. Dönem</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="fas fa-calendar-check fa-5x text-success"></i>
+                            </div>
+                            <h4 class="text-success">Tebrikler!</h4>
+                            <p class="text-muted">Bu yıl hiç devamsızlığınız yok.</p>
+                            <p class="text-muted">Düzenli okula gelmeye devam edin!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Öneriler ve Bilgilendirme -->
+            {% if mazeretsiz_gun > 0 %}
+            <div class="alert alert-warning mt-4">
+                <h6><i class="fas fa-exclamation-triangle"></i> Dikkat!</h6>
+                <p class="mb-0">
+                    {{ mazeretsiz_gun }} gün mazeretsiz devamsızlığınız var. 
+                    Düzenli okula gelmeniz akademik başarınız için önemlidir.
+                    {% if mazeretsiz_gun >= 10 %}
+                        <strong>Devamsızlık limitiniz aşılmak üzere!</strong>
+                    {% endif %}
+                </p>
+            </div>
+            {% endif %}
+
+            {% if toplam_gun == 0 %}
+            <div class="alert alert-success mt-4">
+                <h6><i class="fas fa-star"></i> Mükemmel Devam!</h6>
+                <p class="mb-0">Bu yıl hiç devamsızlığınız yok. Böyle devam edin!</p>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

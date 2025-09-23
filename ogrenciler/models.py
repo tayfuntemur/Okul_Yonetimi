@@ -2,7 +2,7 @@
 from django.db import models
 from django.conf import settings
 from dersler.models import Ders
-
+from users.models import CustomUser
 
 class Ogrenci(models.Model):
     """
@@ -143,3 +143,142 @@ class SinifDersAtama(models.Model):
     def get_toplam_ogrenci_sayisi(self):
         """Bu seviyedeki toplam öğrenci sayısı"""
         return self.get_ogrenciler().count()
+    
+# ogrenciler/models.py - Mevcut modellere eklenecek
+
+class OgretmenSinifAtama(models.Model):
+    """
+    Öğretmenleri sınıflara atama modeli
+    - Sınıf öğretmeni: Bir sınıfa atanır (1A, 2B gibi)
+    - Branş öğretmeni: Birden fazla sınıfa ders verebilir
+    """
+    ATAMA_TURU_CHOICES = [
+        ('okul_oncesi', 'Okul Öncesi Öğretmeni'),
+        ('sinif_ogretmeni', 'Sınıf Öğretmeni'),
+        ('brans_ogretmeni', 'Branş Öğretmeni'),
+    ]
+    
+    ogretmen = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE,
+        limit_choices_to={'role': 'ogretmen'},
+        verbose_name="Öğretmen"
+    )
+    
+    sinif_seviye = models.CharField(
+        max_length=10, 
+        choices=[
+            ('anasinif', 'Ana Sınıfı'),
+            ('1', '1. Sınıf'), ('2', '2. Sınıf'), 
+            ('3', '3. Sınıf'), ('4', '4. Sınıf'),
+            ('5', '5. Sınıf'), ('6', '6. Sınıf'), 
+            ('7', '7. Sınıf'), ('8', '8. Sınıf'),
+        ],
+        verbose_name="Sınıf Seviyesi"
+    )
+    
+    sube = models.CharField(
+        max_length=1, 
+        choices=[('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D')],
+        blank=True, null=True,
+        verbose_name="Şube"
+    )
+    
+    atama_turu = models.CharField(
+        max_length=20, 
+        choices=ATAMA_TURU_CHOICES,
+        verbose_name="Atama Türü"
+    )
+    
+    dersler = models.ManyToManyField(
+        'dersler.Ders', 
+        blank=True,
+        verbose_name="Sorumlu Olduğu Dersler"
+    )
+    
+    aktif = models.BooleanField(default=True, verbose_name="Aktif")
+    aciklama = models.TextField(blank=True, null=True, verbose_name="Açıklama")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Öğretmen Sınıf Ataması"
+        verbose_name_plural = "Öğretmen Sınıf Atamaları"
+        # Aynı öğretmen aynı sınıfa 2 kez atanamaz
+        unique_together = ['ogretmen', 'sinif_seviye', 'sube']
+    
+    def __str__(self):
+        sinif_adi = f"{self.sinif_seviye}{self.sube}" if self.sube else self.sinif_seviye
+        return f"{self.ogretmen.get_full_name()} - {sinif_adi} ({self.get_atama_turu_display()})"
+    
+    @property
+    def sinif_adi(self):
+        return f"{self.sinif_seviye}{self.sube}" if self.sube else self.sinif_seviye
+    
+    def get_ogrenciler(self):
+        """Bu sınıftaki öğrenciler"""
+        if self.sube:
+            return CustomUser.objects.filter(
+                role='ogrenci',
+                sinif_seviye=self.sinif_seviye,
+                sube=self.sube
+            )
+        else:
+            # Branş öğretmeni tüm seviyedeki öğrencileri görebilir
+            return CustomUser.objects.filter(
+                role='ogrenci',
+                sinif_seviye=self.sinif_seviye
+            )
+    
+    def get_ogrenci_sayisi(self):
+        """Sorumlu olduğu öğrenci sayısı"""
+        return self.get_ogrenciler().count()
+    
+    def get_ders_sayisi(self):
+        """Verdiği ders sayısı"""
+        return self.dersler.count()
+
+
+# Öğretmen için helper metodu ekleyelim
+class OgretmenManager:
+    """Öğretmen ile ilgili işlemler için yardımcı sınıf"""
+    
+    @staticmethod
+    def get_ogretmen_siniflari(ogretmen_user):
+        """Bir öğretmenin sorumlu olduğu sınıfları getir"""
+        return OgretmenSinifAtama.objects.filter(
+            ogretmen=ogretmen_user, 
+            aktif=True
+        )
+    
+    @staticmethod
+    def get_ogretmen_dersleri(ogretmen_user):
+        """Bir öğretmenin verdiği dersleri getir"""
+        atamalar = OgretmenSinifAtama.objects.filter(
+            ogretmen=ogretmen_user, 
+            aktif=True
+        )
+        
+        from dersler.models import Ders
+        ders_ids = []
+        for atama in atamalar:
+            ders_ids.extend(atama.dersler.values_list('id', flat=True))
+        
+        return Ders.objects.filter(id__in=ders_ids).distinct()
+    
+    @staticmethod
+    def get_ogretmen_ogrencileri(ogretmen_user):
+        """Bir öğretmenin sorumlu olduğu tüm öğrenciler"""
+        atamalar = OgretmenSinifAtama.objects.filter(
+            ogretmen=ogretmen_user, 
+            aktif=True
+        )
+        
+        from users.models import CustomUser
+        ogrenci_ids = []
+        for atama in atamalar:
+            ogrenci_ids.extend(
+                atama.get_ogrenciler().values_list('id', flat=True)
+            )
+        
+        return CustomUser.objects.filter(id__in=ogrenci_ids).distinct()
