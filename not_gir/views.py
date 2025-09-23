@@ -1,19 +1,31 @@
+# not_gir/views.py - TAM DÜZELTİLMİŞ HALİ
 from django.shortcuts import render, get_object_or_404, redirect
-from ogrenciler.models import Ogrenci, Sinif
+from ogrenciler.models import Ogrenci, SinifDersAtama  # ✅ SinifDersAtama import
 from django.contrib.auth.decorators import login_required
 from dersler.models import Ders
 from .models import DersNotu
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
+from users.models import CustomUser
+
 
 def is_admin(user):
     return user.is_superuser or user.role == 'admin' 
 
+
 @user_passes_test(is_admin)
 def toplu_not_gir(request, sinif_id, ders_id):
-    sinif = get_object_or_404(Sinif, id=sinif_id)
+    """
+    Toplu not girişi - SinifDersAtama ile çalışır
+    """
+    sinif_ders_atama = get_object_or_404(SinifDersAtama, id=sinif_id)
     ders = get_object_or_404(Ders, id=ders_id)
-    ogrenciler = Ogrenci.objects.filter(sinif=sinif)
+    
+    # Bu sınıf seviyesindeki tüm öğrencileri getir
+    ogrenciler = Ogrenci.objects.filter(
+        user__sinif_seviye=sinif_ders_atama.sinif_seviye,
+        user__role='ogrenci'
+    ).select_related('user').order_by('user__sube', 'user__last_name')
 
     if request.method == 'POST':
         for ogrenci in ogrenciler:
@@ -57,11 +69,10 @@ def toplu_not_gir(request, sinif_id, ders_id):
 
             not_kaydi.save()
 
+        messages.success(request, f'{sinif_ders_atama.sinif_seviye}. sınıf {ders.ad} dersi notları başarıyla kaydedildi!')
         return redirect('not_gir:toplu_not', sinif_id=sinif_id, ders_id=ders_id)
 
-
-
-    #  Notları çekip formu göster
+    # Notları çekip formu göster
     notlar_dict = {}
     for ogrenci in ogrenciler:
         try:
@@ -71,40 +82,61 @@ def toplu_not_gir(request, sinif_id, ders_id):
         notlar_dict[ogrenci.id] = not_obj
 
     return render(request, 'not_gir/toplu_not_form.html', {
-        'sinif': sinif,
+        'sinif': sinif_ders_atama,  # Template'te kullanım için
         'ders': ders,
         'ogrenciler': ogrenciler,
         'notlar_dict': notlar_dict,
     })
 
+
 @user_passes_test(is_admin)
 def sinif_secimi_sayfasi(request):
-    siniflar = Sinif.objects.all()
+    """
+    Sınıf seçimi sayfası - SinifDersAtama listesi
+    """
+    siniflar = SinifDersAtama.objects.filter(aktif=True).order_by('sinif_seviye')
     return render(request, 'not_gir/sinif_secimi.html', {'siniflar': siniflar})
+
+
 @user_passes_test(is_admin)
 def ders_secimi(request, sinif_id):
-    sinif = get_object_or_404(Sinif, id=sinif_id)
-    dersler = sinif.dersler.all()  # sadece o sınıfa atanmış dersler
-    return render(request, 'not_gir/ders_secimi.html', {'sinif': sinif, 'dersler': dersler})
-
-
+    """
+    Seçilen sınıfa ait dersleri listele
+    """
+    sinif_ders_atama = get_object_or_404(SinifDersAtama, id=sinif_id)
+    dersler = sinif_ders_atama.dersler.all()  # Bu sınıfa atanmış dersler
+    
+    return render(request, 'not_gir/ders_secimi.html', {
+        'sinif': sinif_ders_atama, 
+        'dersler': dersler
+    })
 
 
 @login_required
 def ogrenci_notlari(request):
+    """
+    Öğrencinin kendi notlarını görüntüleme
+    """
+    # Giriş yapan kullanıcı öğrenci mi kontrol et
+    if request.user.role != 'ogrenci':
+        messages.error(request, 'Bu sayfaya erişim yetkiniz yok.')
+        return redirect('dashboard')
+    
     try:
         ogrenci = request.user.ogrenci  # CustomUser ile OneToOne ilişki 
-    except AttributeError:
-        return redirect('kullanicilar:home')  # Giriş yapan bir öğrenci değilse
+    except Ogrenci.DoesNotExist:
+        messages.error(request, 'Öğrenci kaydınız bulunamadı.')
+        return redirect('dashboard')
 
-    try:
-        notlar = DersNotu.objects.filter(ogrenci=request.user.ogrenci)
-    except DersNotu.DoesNotExist:
-        notlar = None
+    # Öğrencinin aldığı dersler
+    dersler = ogrenci.get_dersler()
+    
+    # Öğrencinin notları
+    notlar = DersNotu.objects.filter(ogrenci=ogrenci).select_related('ders')
 
     context = {
         'ogrenci': ogrenci,
-        'notlar': notlar
+        'notlar': notlar,
+        'dersler': dersler,
     }
     return render(request, 'not_gir/ogrenci_notlari.html', context)
-

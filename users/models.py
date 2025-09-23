@@ -156,10 +156,37 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return f'{self.first_name} {self.last_name} ({self.email}) - {self.role}'
-
     def kayit_tarihi_sade(self):
         return self.join_date.strftime('%Y-%m-%d %H:%M')
 
+    def get_full_name(self):
+        """Ad ve soyadı birleştirerek tam ismi döndürür"""
+        if self.first_name and self.last_name:
+            return f"{self.first_name} {self.last_name}".strip()
+        elif self.first_name:
+            return self.first_name
+        elif self.last_name:
+            return self.last_name
+        else:
+            return self.email  # username yerine email kullan
     
+    def get_short_name(self):
+        """Kısa isim (sadece ad)"""
+        return self.first_name or self.email
+
+    def __str__(self):
+        """String reprezentasyonu - TEK TANE!"""
+        full_name = self.get_full_name()
+        if full_name != self.email:
+            return f"{full_name} ({self.email})"
+        return self.email
+
+    @property
+    def username(self):
+        """Backward compatibility için username property'si"""
+        return self.email
+
+    @property
+    def okul_numarasi(self):
+        """Öğrenci modeli için okul numarası property'si"""
+        return self.okul_no

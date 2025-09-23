@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'dersler',
     'devamsizlik',
     'not_gir',
-    'ogrenciler',
+    "ogrenciler.apps.OgrencilerConfig",
     'duyurular',
 ]
 
