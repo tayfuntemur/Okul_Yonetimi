@@ -1,8 +1,15 @@
-from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.utils import timezone
 
 def home(request):
     user = request.user
+    
+    if hasattr(user, 'password_changed') and not user.password_changed:
+        messages.warning(request, "İlk girişiniz! Lütfen şifrenizi değiştirin.")
+        return redirect('users:change_password')
+    
     context = {}
     
     # Öğrenci dashboard'u
@@ -28,6 +35,23 @@ def home(request):
         context.update({
             'toplam_not': toplam_not,
             'bugun_devamsizlik': bugun_devamsizlik,
+        })
+        
+        # Ödev sayısı ekle
+        try:
+            from odevler.models import Odev
+            odev_sayisi = Odev.objects.filter(
+                sinif_seviye=user.sinif_seviye,
+                sube=user.sube,
+                aktif=True
+            ).count()
+        except ImportError:
+            odev_sayisi = 0
+        
+        context.update({
+            'toplam_not': toplam_not,
+            'bugun_devamsizlik': bugun_devamsizlik,
+            'odev_sayisi': odev_sayisi,  # ← Ekle
         })
     
     # Öğretmen dashboard'u
@@ -73,11 +97,20 @@ def home(request):
             toplam_ogrenci = 0
             toplam_ders = 0
             toplam_not = 0
+            
+        try:
+            from odevler.models import Odev
+            odev_sayisi = Odev.objects.filter(ogretmen=user).count()
+        except ImportError:
+            odev_sayisi = 0
+        
+    
         
         context.update({
-            'toplam_ogrenci': toplam_ogrenci,
-            'toplam_ders': toplam_ders,
-            'toplam_not': toplam_not,
+        'toplam_ogrenci': toplam_ogrenci,
+        'toplam_ders': toplam_ders,
+        'toplam_not': toplam_not,
+        'odev_sayisi': odev_sayisi,  # ← Ekle
         })
     
     # Admin/Müdür dashboard'u (genel istatistikler)

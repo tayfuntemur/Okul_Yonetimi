@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Ödevler</h2>
+        {% if request.user.role == 'ogretmen' %}
+            <a href="{% url 'odevler:ekle' %}" class="btn btn-primary">Yeni Ödev Ekle</a>
+        {% endif %}
+    </div>
+
+    {% if odevler %}
+        <div class="row">
+           {% for odev in odevler %}
+            <div class="col-md-6 mb-3">
+                <div class="card {{ odev.ders.renk }} text-white">  <!-- Renk eklendi -->
+                    <div class="card-header">
+                        <h5 class="mb-0">{{ odev.ders.ad }} - {{ odev.baslik }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Sınıf:</strong> {{ odev.sinif_seviye }}{{ odev.sube }}</p>
+                        <p><strong>Açıklama:</strong> {{ odev.aciklama }}</p>
+                        <p><strong>Öğretmen:</strong> {{ odev.ogretmen.get_full_name }}</p>
+                        <p><strong>Son Teslim:</strong> 
+                            <span class="badge bg-light text-dark">{{ odev.son_teslim_tarihi }}</span>
+                        </p>
+                        <small class="text-white-50">Oluşturulma: {{ odev.olusturma_tarihi|date:"d.m.Y H:i" }}</small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Henüz ödev bulunmuyor.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

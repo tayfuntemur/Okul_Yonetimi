@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Yeni Ödev Ekle</h2>
+    
+    {% if dersler and siniflar %}
+    <div class="card mt-3">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    <label for="ders" class="form-label">Ders</label>
+                    <select name="ders" id="ders" class="form-select" required>
+                        <option value="">Ders Seçin</option>
+                        {% for ders in dersler %}
+                            <option value="{{ ders.id }}">{{ ders.ad }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="sinif" class="form-label">Sınıf</label>
+                    <select name="sinif" id="sinif" class="form-select" required>
+                        <option value="">Sınıf Seçin</option>
+                        {% for sinif in siniflar %}
+                            <option value="{{ sinif.seviye }}-{{ sinif.sube }}">
+                                {{ sinif.seviye }}{{ sinif.sube }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="baslik" class="form-label">Ödev Başlığı</label>
+                    <input type="text" name="baslik" id="baslik" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="aciklama" class="form-label">Açıklama</label>
+                    <textarea name="aciklama" id="aciklama" class="form-control" rows="4" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="son_teslim_tarihi" class="form-label">Son Teslim Tarihi</label>
+                    <input type="date" name="son_teslim_tarihi" id="son_teslim_tarihi" class="form-control" required>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success">Ödev Ekle</button>
+                    <a href="{% url 'odevler:liste' %}" class="btn btn-secondary">İptal</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-warning mt-3">
+        Size atanmış ders veya sınıf bulunmuyor. Lütfen yöneticinizle iletişime geçin.
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Sınıf seçildiğinde seviye ve şubeyi ayır
+document.getElementById('sinif').addEventListener('change', function() {
+    const value = this.value.split('-');
+    if(value.length === 2) {
+        // Hidden input'lar ekle
+        let form = this.closest('form');
+        
+        // Eski hidden input'ları temizle
+        const oldInputs = form.querySelectorAll('input[name="sinif_seviye"], input[name="sube"]');
+        oldInputs.forEach(input => input.remove());
+        
+        // Yeni hidden input'lar ekle
+        const seviyeInput = document.createElement('input');
+        seviyeInput.type = 'hidden';
+        seviyeInput.name = 'sinif_seviye';
+        seviyeInput.value = value[0];
+        
+        const subeInput = document.createElement('input');
+        subeInput.type = 'hidden';
+        subeInput.name = 'sube';
+        subeInput.value = value[1];
+        
+        form.appendChild(seviyeInput);
+        form.appendChild(subeInput);
+    }
+});
+</script>
+{% endblock %}

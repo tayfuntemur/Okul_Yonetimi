@@ -31,13 +31,33 @@
                         <small>Bu ay</small>
                     </div>
                 </div>
-            </div>   
+            </div>  
+            <!-- YENİ ÖDEV KARTI -->
+            <div class="col-md-4 mb-3">
+                <div class="card text-white h-100 gradient-bg shadow">
+                    <div class="card-header border-0">
+                        <h6 class="card-title mb-0">📚 Ödevlerim</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <h2>{{ odev_sayisi|default:0 }}</h2>
+                        <small>Aktif ödev</small>
+                        <div class="mt-2">
+                            <a href="{% url 'odevler:liste' %}" class="btn btn-light btn-sm">
+                                Görüntüle
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        
         
         <div class="row mt-4">
             <div class="col-12 text-center">
                 <a href="{% url 'not_gir:ogrenci_notlari' %}" class="btn btn-gradient-primary btn-lg mx-2 px-4">📝 Notlarım</a>
                 <a href="{% url 'devamsizlik:ogrenci_devamsizliklari' %}" class="btn btn-info btn-lg mx-2 px-4">📅 Devamsızlıklarım</a>
+                <a href="{% url 'odevler:liste' %}" class="btn btn-success btn-lg mx-2 px-4">📚 Ödevlerim</a>
                 <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-warning btn-lg mx-2 px-4">📢 Duyurular</a>
             </div>
         </div>
@@ -79,13 +99,34 @@
             </div>
         </div>
         
-        <div class="row mt-4">
-            <div class="col-12 text-center">
-                <a href="{% url 'not_gir:not_girisi' %}" class="btn btn-gradient-primary btn-lg mx-2 px-4">📝 Not Gir</a>
-                <a href="{% url 'devamsizlik:yoklama_al' %}" class="btn btn-warning btn-lg mx-2 px-4">📋 Yoklama Al</a>
-                <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-info btn-lg mx-2 px-4">📢 Duyurular</a>
+        <!-- YENİ ÖDEV KARTI -->
+        <div class="col-md-3 mb-3">
+            <div class="card text-white h-100 gradient-bg shadow">
+                <div class="card-header border-0">
+                    <h6 class="card-title mb-0">📚 Ödevler</h6>
+                </div>
+                <div class="card-body text-center">
+                    <h2>{{ odev_sayisi|default:0 }}</h2>
+                    <small>Verilen ödev</small>
+                    <div class="mt-2">
+                        <a href="{% url 'odevler:ekle' %}" class="btn btn-light btn-sm">
+                            Yeni Ekle
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12 text-center">
+            <a href="{% url 'not_gir:not_girisi' %}" class="btn btn-gradient-primary btn-lg mx-2 px-4">📝 Not Gir</a>
+            <a href="{% url 'devamsizlik:yoklama_al' %}" class="btn btn-warning btn-lg mx-2 px-4">📋 Yoklama Al</a>
+            <a href="{% url 'odevler:liste' %}" class="btn btn-success btn-lg mx-2 px-4">📚 Ödevlerim</a>
+            <a href="{% url 'odevler:ekle' %}" class="btn btn-info btn-lg mx-2 px-4">➕ Ödev Ekle</a>
+            <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-secondary btn-lg mx-2 px-4">📢 Duyurular</a>
+        </div>
+    </div>
 
     {% elif user.role in "superuser,mudur,mudur_yardimcisi" %}
         <div class="row mb-4">

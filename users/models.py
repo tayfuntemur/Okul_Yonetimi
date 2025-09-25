@@ -1,6 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser,PermissionsMixin,BaseUserManager
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractBaseUser,PermissionsMixin,BaseUserManager,User
+
 
 
 class CustomUserManager(BaseUserManager):
@@ -127,6 +127,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
     brans = models.CharField(max_length=50, choices=BRANS_CHOICES, blank=True)
     gorev = models.CharField(max_length=100, blank=True, help_text="Diğer personel için görev tanımı")
+    password_changed = models.BooleanField(default=False, verbose_name="Şifre değiştirildi mi?")
     objects = CustomUserManager()
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']

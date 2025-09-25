@@ -49,7 +49,7 @@
                         <span class="text-white fw-semibold">{{ user.first_name }} {{ user.last_name }}</span>
                     </div>
                     <a href="{% url 'users:logout_view' %}" class="btn btn-danger btn-lg px-4">Çıkış</a>
-                    <a href="{% url 'users:update_user_view' %}" class="btn btn-warning btn-lg px-4">Profil</a>
+                    <a href="{% url 'users:change_password' %}" class="btn btn-warning btn-lg px-4">Şifre Değiştir</a>
                 {% else %}  
                     <a href="{% url 'users:login_view' %}" class="btn btn-success btn-lg px-4">Giriş</a>
                 {% endif %}

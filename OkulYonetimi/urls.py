@@ -11,8 +11,7 @@ urlpatterns = [
     path('devamsizlik/', include('devamsizlik.urls')),
     path('not-gir/', include('not_gir.urls')),  # Tire ile daha güzel
     path('duyurular/', include('duyurular.urls')),
-    
-    # Eksik olanlar:
     path('ogrenciler/', include('ogrenciler.urls')),  # Öğrenci yönetimi
+    path('odevler/', include('odevler.urls')),
     # path('dersler/', include('dersler.urls')),        # Ders yönetimi
 ]

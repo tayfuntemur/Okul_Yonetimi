@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'not_gir',
     "ogrenciler.apps.OgrencilerConfig",
     'duyurular',
+    'odevler',
 ]
 
 MIDDLEWARE = [
