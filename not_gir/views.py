@@ -54,10 +54,13 @@ def not_girisi(request):
     ogrenciler = None
     notlar_dict = {}
     available_dersler = []
+    ogretmen_atama = None
+    selected_sube = None  # ← YENİ EKLEME
     
     # URL parametrelerini kontrol et
     sinif_id = request.GET.get('sinif_id')
     ders_id = request.GET.get('ders_id')
+    sube = request.GET.get('sube')  # ← YENİ EKLEME
     
     if sinif_id:
         selected_sinif = get_object_or_404(SinifDersAtama, id=sinif_id)
@@ -89,43 +92,54 @@ def not_girisi(request):
             
             # Bu sınıftaki öğrencileri getir
             if request.user.role == 'ogretmen':
-                # Öğretmen: Sadece kendi sınıfındaki öğrenciler
-                ogretmen_atama = OgretmenSinifAtama.objects.filter(
-                    ogretmen=request.user,
-                    sinif_seviye=selected_sinif.sinif_seviye,
-                    aktif=True
-                ).first()
-                
                 if ogretmen_atama:
                     if ogretmen_atama.sube:
                         # Sınıf öğretmeni - sadece kendi şubesi
+                        selected_sube = ogretmen_atama.sube
                         ogrenciler = Ogrenci.objects.filter(
                             user__sinif_seviye=selected_sinif.sinif_seviye,
                             user__sube=ogretmen_atama.sube,
                             user__role='ogrenci'
                         ).select_related('user').order_by('user__last_name')
                     else:
-                        # Branş öğretmeni - tüm şubeler
-                        ogrenciler = Ogrenci.objects.filter(
-                            user__sinif_seviye=selected_sinif.sinif_seviye,
-                            user__role='ogrenci'
-                        ).select_related('user').order_by('user__sube', 'user__last_name')
+                        # Branş öğretmeni - şube seçmeli
+                        if sube:
+                            selected_sube = sube
+                            ogrenciler = Ogrenci.objects.filter(
+                                user__sinif_seviye=selected_sinif.sinif_seviye,
+                                user__sube=sube,
+                                user__role='ogrenci'
+                            ).select_related('user').order_by('user__last_name')
+                        else:
+                            # Şube seçilmemiş
+                            ogrenciler = None
+                            messages.info(request, 'Lütfen bir şube seçin.')
                 else:
                     ogrenciler = Ogrenci.objects.none()
             else:
-                # Admin/Müdür - tüm öğrenciler
-                ogrenciler = Ogrenci.objects.filter(
-                    user__sinif_seviye=selected_sinif.sinif_seviye,
-                    user__role='ogrenci'
-                ).select_related('user').order_by('user__sube', 'user__last_name')
+                # Admin/Müdür
+                if sube:
+                    selected_sube = sube
+                    ogrenciler = Ogrenci.objects.filter(
+                        user__sinif_seviye=selected_sinif.sinif_seviye,
+                        user__sube=sube,
+                        user__role='ogrenci'
+                    ).select_related('user').order_by('user__last_name')
+                else:
+                    # Admin için şube seçimi zorunlu değil, tüm öğrencileri göster
+                    ogrenciler = Ogrenci.objects.filter(
+                        user__sinif_seviye=selected_sinif.sinif_seviye,
+                        user__role='ogrenci'
+                    ).select_related('user').order_by('user__sube', 'user__last_name')
             
             # Mevcut notları getir
-            for ogrenci in ogrenciler:
-                try:
-                    not_obj = DersNotu.objects.get(ogrenci=ogrenci, ders=selected_ders)
-                except DersNotu.DoesNotExist:
-                    not_obj = None
-                notlar_dict[ogrenci.id] = not_obj
+            if ogrenciler:
+                for ogrenci in ogrenciler:
+                    try:
+                        not_obj = DersNotu.objects.get(ogrenci=ogrenci, ders=selected_ders)
+                    except DersNotu.DoesNotExist:
+                        not_obj = None
+                    notlar_dict[ogrenci.id] = not_obj
     
     # POST - Not kaydetme
     if request.method == 'POST' and selected_ders and ogrenciler:
@@ -171,9 +185,14 @@ def not_girisi(request):
 
         seviye_dict = dict(selected_sinif.SINIF_SEVIYELERI)
         sinif_adi = seviye_dict.get(selected_sinif.sinif_seviye, selected_sinif.sinif_seviye)
-        messages.success(request, f'{sinif_adi} {selected_ders.ad} dersi notları kaydedildi!')
         
-        return redirect(f"{request.path}?sinif_id={sinif_id}&ders_id={ders_id}")
+        # Redirect URL'i oluştur
+        redirect_url = f"{request.path}?sinif_id={sinif_id}&ders_id={ders_id}"
+        if sube:
+            redirect_url += f"&sube={sube}"
+        
+        messages.success(request, f'{sinif_adi}{selected_sube if selected_sube else ""} {selected_ders.ad} dersi notları kaydedildi!')
+        return redirect(redirect_url)
 
     context = {
         'siniflar': siniflar,
@@ -183,6 +202,8 @@ def not_girisi(request):
         'notlar_dict': notlar_dict,
         'available_dersler': available_dersler,
         'user_role': request.user.role,
+        'ogretmen_atama': ogretmen_atama,  # ← YENİ EKLEME
+        'selected_sube': selected_sube,  # ← YENİ EKLEME
     }
     
     return render(request, 'not_gir/not_girisi.html', context)

@@ -4,6 +4,11 @@
 
 
 {% block content %}
+<style>
+.form-select:focus {
+    box-shadow: none !important;
+}
+</style>
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
@@ -21,80 +26,44 @@
                 </div>
                 <div class="card-body">
                     <form method="get" class="row g-3">
-                       <!-- Tarih Seçimi -->
-                        <div class="col-md-3">
-                            <label class="form-label">📅 Tarih:</label>
-                            {% if user_role == 'ogretmen' %}
-                                <!-- Öğretmen sadece bugünün tarihini görebilir -->
-                                <input type="date" name="tarih" class="form-control" 
-                                    value="{{ selected_tarih }}" readonly>
-                                <small class="text-muted">Sadece bugünkü yoklamayı alabilirsiniz</small>
-                            {% else %}
-                                <!-- Admin farklı tarihleri seçebilir -->
-                                <input type="date" name="tarih" class="form-control" 
-                                    value="{{ selected_tarih }}" onchange="this.form.submit()">
-                            {% endif %}
-                        </div>
-                        
-                        <!-- Sınıf Seçimi -->
-                        <div class="col-md-4">
-                            <label class="form-label">🎓 Sınıf Seviyesi:</label>
-                            <select name="sinif_seviye" class="form-select" onchange="this.form.submit()">
-                                <option value="">-- Sınıf Seçin --</option>
-                                {% if user_role == 'ogretmen' %}
-                                    {% if siniflar|length == 1 %}
-                                        <!-- Öğretmenin tek sınıfı varsa dropdown göstermeyelim -->
-                                        <input type="hidden" name="sinif_seviye" value="{{ siniflar.0.sinif_seviye }}">
-                                        <input type="hidden" name="sube" value="{{ siniflar.0.sube }}">
-                                        <p><strong>{{ siniflar.0.sinif_seviye }}-{{ siniflar.0.sube }}</strong> sınıfı için yoklama alıyorsunuz.</p>
-                                    {% else %}
-                                        <!-- Birden fazla sınıfa atanmışsa dropdown göster -->
-                                        <select name="sinif_seviye" class="form-select" onchange="this.form.submit()">
-                                            {% for atama in siniflar %}
-                                                <option value="{{ atama.sinif_seviye }}" 
-                                                        {% if atama.sinif_seviye == selected_sinif %}selected{% endif %}>
-                                                    {{ atama.sinif_seviye }}-{{ atama.sube }}
-                                                </option>
-                                            {% endfor %}
-                                        </select>
-                                    {% endif %}
-                                {% endif %}
-
-                            </select>
-                        </div>
-                        
-                        <!-- Şube Seçimi - YENİ KOD -->
-                        {% if selected_sinif %}
-                        <div class="col-md-3">
-                            <label class="form-label">🏫 Şube:</label>
-                            <select name="sube" class="form-select" onchange="this.form.submit()">
-                                <option value="">-- Şube Seçin --</option>
-                                {% if user_role == 'ogretmen' %}
-                                    <!-- Öğretmen sadece yetkili olduğu şubeleri görür -->
-                                    {% for sinif in siniflar %}
-                                        {% if sinif.sinif_seviye == selected_sinif and sinif.sube %}
-                                            <option value="{{ sinif.sube }}" {% if selected_sube == sinif.sube %}selected{% endif %}>
-                                                {{ sinif.sube }}
-                                            </option>
-                                        {% endif %}
-                                    {% endfor %}
-                                {% else %}
-                                    <!-- Admin tüm şubeleri görebilir -->
-                                    <option value="A" {% if selected_sube == 'A' %}selected{% endif %}>A</option>
-                                    <option value="B" {% if selected_sube == 'B' %}selected{% endif %}>B</option>
-                                    <option value="C" {% if selected_sube == 'C' %}selected{% endif %}>C</option>
-                                    <option value="D" {% if selected_sube == 'D' %}selected{% endif %}>D</option>
-                                {% endif %}
-                            </select>
-                        </div>
-                        {% endif %}
-                        
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-outline-primary">
-                                🔍 Filtrele
-                            </button>
-                        </div>
-                    </form>
+    <!-- Hidden input'lar - sadece değişmeyecek olanlar -->
+    <input type="hidden" name="tarih" value="{{ selected_tarih }}">
+    
+    <!-- Sınıf Seçimi -->
+    <div class="col-md-3">
+        <label class="form-label">🎓 Sınıf Seviyesi:</label>
+        <select name="sinif_seviye" class="form-select" onchange="this.form.submit()">
+            <option value="">-- Sınıf Seçin --</option>
+            {% regroup siniflar by sinif_seviye as sinif_groups %}
+            {% for group in sinif_groups %}
+                <option value="{{ group.grouper }}" {% if group.grouper == selected_sinif %}selected{% endif %}>
+                    {{ group.grouper }}. Sınıf
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <!-- Şube Seçimi -->
+    {% if selected_sinif %}
+    <div class="col-md-3">
+        <label class="form-label">🏫 Şube:</label>
+        <select name="sube" class="form-select" onchange="this.form.submit()">
+            {% if user_role == 'ogretmen' %}
+                {% for sube in ogretmen_subeleri|get_item:selected_sinif %}
+                    <option value="{{ sube }}" {% if selected_sube == sube %}selected{% endif %}>
+                        {{ sube }} Şubesi
+                    </option>
+                {% endfor %}
+            {% else %}
+                <option value="A" {% if selected_sube == 'A' %}selected{% endif %}>A Şubesi</option>
+                <option value="B" {% if selected_sube == 'B' %}selected{% endif %}>B Şubesi</option>
+                <option value="C" {% if selected_sube == 'C' %}selected{% endif %}>C Şubesi</option>
+                <option value="D" {% if selected_sube == 'D' %}selected{% endif %}>D Şubesi</option>
+            {% endif %}
+        </select>
+    </div>
+    {% endif %}
+</form>
                 </div>
             </div>
 

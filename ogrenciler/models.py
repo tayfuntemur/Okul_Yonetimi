@@ -205,7 +205,7 @@ class OgretmenSinifAtama(models.Model):
         verbose_name = "Öğretmen Sınıf Ataması"
         verbose_name_plural = "Öğretmen Sınıf Atamaları"
         # Aynı öğretmen aynı sınıfa 2 kez atanamaz
-        unique_together = ['ogretmen', 'sinif_seviye', 'sube']
+        # unique_together = ['ogretmen', 'sinif_seviye', 'sube']
     
     def __str__(self):
         sinif_adi = f"{self.sinif_seviye}{self.sube}" if self.sube else self.sinif_seviye

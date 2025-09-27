@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>📋 Personel Yönetimi</h2>
+    
+    <!-- Bugün İzinli Personel -->
+    <h3 class="mt-4">Bugün İzinli Personel</h3>
+    {% if bugun_izinliler %}
+    <div class="row">
+        {% for izin in bugun_izinliler %}
+        <div class="col-md-4 mb-3">
+            <div class="card border-warning">
+                <div class="card-header bg-warning">
+                    <strong>{{ izin.personel.get_full_name }}</strong>
+                    <span class="badge bg-dark float-end">{{ izin.get_izin_turu_display }}</span>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0"><small>{{ izin.aciklama|default:"-" }}</small></p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-success">Bugün izinli personel yok.</div>
+    {% endif %}
+    
+    <!-- Etkilenen Dersler -->
+    {% if etkilenen_dersler %}
+    <h3 class="mt-4">⚠️ Etkilenen Dersler</h3>
+    <table class="table table-bordered">
+        <thead class="table-danger">
+            <tr>
+                <th>Öğretmen</th>
+                <th>Saat</th>
+                <th>Ders</th>
+                <th>Sınıf</th>
+                <th>İşlem</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in etkilenen_dersler %}
+                {% for ders in item.dersler %}
+                <tr>
+                    <td>{{ item.izin.personel.get_full_name }}</td>
+                    <td>{{ ders.saat }}. Saat</td>
+                    <td>{{ ders.ders.ad }}</td>
+                    <td>{{ ders.sinif }}</td>
+                    <td>
+                        <a href="{% url 'personel_yonetimi:bos_ogretmenler' %}?gun={{ ders.gun }}&saat={{ ders.saat }}" 
+                           class="btn btn-sm btn-info">Vekil Bul</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+    
+    <!-- Yoklama/İzin Girişi -->
+    <h3 class="mt-4">Yoklama & İzin Girişi</h3>
+    <table class="table table-striped">
+        <thead class="table-primary">
+            <tr>
+                <th>Personel</th>
+                <th>Rol</th>
+                <th>Durum</th>
+                <th>İşlem</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for personel in tum_personel %}
+            <tr>
+                <td>{{ personel.get_full_name }}</td>
+                <td>{{ personel.get_role_display }}</td>
+                <td>
+                    {% if personel.id in bugun_izinli_ids %}  <!-- ← Sadece bu satır değişti -->
+                        <span class="badge bg-danger">İzinli</span>
+                    {% else %}
+                        <span class="badge bg-success">Var</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#izinModal{{ personel.id }}">
+                        İzin Ver
+                    </button>
+                </td>
+            </tr>
+            
+            <!-- Modal -->
+            <div class="modal fade" id="izinModal{{ personel.id }}">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                                <h5>{{ personel.get_full_name }} - İzin</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="personel_id" value="{{ personel.id }}">
+                                <div class="mb-3">
+                                    <label>İzin Türü</label>
+                                    <select name="izin_turu" class="form-select" required>
+                                        <option value="rapor">Rapor</option>
+                                        <option value="evlilik">Evlilik</option>
+                                        <option value="refakat">Refakat</option>
+                                        <option value="cenaze">Cenaze</option>
+                                        <option value="mazeretsiz">Mazeretsiz</option>
+                                        <option value="yillik">Yıllık</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label>Açıklama</label>
+                                    <textarea name="aciklama" class="form-control" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+                                <button type="submit" class="btn btn-primary">Kaydet</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -26,22 +26,22 @@ class CustomUserAdmin(UserAdmin):
          
     # Yeni kullanıcı ekleme
     add_fieldsets = (
-        ('Giriş Bilgileri', {
-            'classes': ('wide',),
-            'fields': ('email',)
-        }),
-        ('Kişisel Bilgiler', {
-            'fields': ('first_name', 'last_name', 'from_city', 'phone_number', 'adress', 
-                      'dogum_tarihi')
-        }),
-        ('Okul Bilgileri', {
-            'fields': ('role', 'sinif_seviye', 'sube', 'brans', 'gorev', 'sigorta_no')
-        }),
-        ('Yetkiler', {
-            'fields': ('is_active', 'is_staff', 'is_superuser'),
-            'classes': ('collapse',)  # Kapalı göster
-        })
-    )
+    ('Giriş Bilgileri', {
+        'classes': ('wide',),
+        'fields': ('email', 'password1', 'password2')  # ← Şifre alanlarını ekle
+    }),
+    ('Kişisel Bilgiler', {
+        'fields': ('first_name', 'last_name', 'from_city', 'phone_number', 'adress', 
+                  'dogum_tarihi')
+    }),
+    ('Okul Bilgileri', {
+        'fields': ('role', 'sinif_seviye', 'sube', 'brans', 'gorev', 'sigorta_no')
+    }),
+    ('Yetkiler', {
+        'fields': ('is_active', 'is_staff', 'is_superuser'),
+        'classes': ('collapse',)
+    })
+)
     
     readonly_fields = ('okul_no',)
     search_fields = ['email']
@@ -93,8 +93,25 @@ class CustomUserAdmin(UserAdmin):
                 
         return field
     
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        
+        # Yeni kullanıcı eklerken şifre alanlarını opsiyonel yap
+        if not obj:
+            if 'password1' in form.base_fields:
+                form.base_fields['password1'].required = False
+                form.base_fields['password1'].help_text = 'Boş bırakırsanız otomatik "Okul1234." atanır'
+            if 'password2' in form.base_fields:
+                form.base_fields['password2'].required = False
+        
+        return form
+
     def save_model(self, request, obj, form, change):
-        # Eğer yeni kullanıcı ise (güncelleme değilse)
-        if not change and not obj.password:
-            obj.set_password('Okul1234.')  # Otomatik şifre
+        if not change:  # Yeni kullanıcı
+            password = form.cleaned_data.get('password1')
+            if password:
+                obj.set_password(password)
+            else:
+                obj.set_password('Okul1234.')
         super().save_model(request, obj, form, change)
+        

@@ -2,6 +2,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.utils import timezone
+from personel_yonetimi.models import PersonelIzin
+from datetime import date
 
 def home(request):
     user = request.user
@@ -14,13 +16,6 @@ def home(request):
     
     # Öğrenci dashboard'u
     if user.is_authenticated and user.role == 'ogrenci':
-        try:
-            from not_gir.models import DersNotu
-            # Öğrencinin kendi notları
-            notlar = DersNotu.objects.filter(ogrenci__user=user)
-            toplam_not = notlar.count()
-        except ImportError:
-            toplam_not = 0
             
         try:
             from devamsizlik.models import Devamsizlik
@@ -33,7 +28,7 @@ def home(request):
             bugun_devamsizlik = 0
         
         context.update({
-            'toplam_not': toplam_not,
+           
             'bugun_devamsizlik': bugun_devamsizlik,
         })
         
@@ -49,7 +44,7 @@ def home(request):
             odev_sayisi = 0
         
         context.update({
-            'toplam_not': toplam_not,
+           
             'bugun_devamsizlik': bugun_devamsizlik,
             'odev_sayisi': odev_sayisi,  # ← Ekle
         })
@@ -64,56 +59,49 @@ def home(request):
             
             # İstatistikleri hesapla
             toplam_ogrenci = sum(atama.get_ogrenci_sayisi() for atama in atamalar)
-            toplam_ders = sum(atama.get_ders_sayisi() for atama in atamalar)
+            toplam_ders = sum(atama.dersler.count() for atama in atamalar)
             
-            # Girilen notlar (öğretmenin kendi öğrencilerine girdiği)
+            # Bugün izinli/devamsız öğrenci sayısı
             try:
-                from not_gir.models import DersNotu
-                from ogrenciler.models import Ogrenci
+                from devamsizlik.models import Devamsizlik
+                from datetime import date
                 
-                ders_ids = []
+                # Öğretmenin öğrencilerinin ID'leri
                 ogrenci_ids = []
-                
                 for atama in atamalar:
-                    ders_ids.extend(atama.dersler.values_list('id', flat=True))
-                    
-                    # CustomUser ID'lerini al
                     user_ids = atama.get_ogrenciler().values_list('id', flat=True)
-                    
-                    # CustomUser ID'lerini Ogrenci ID'lerine çevir
-                    ogrenci_objs = Ogrenci.objects.filter(user__id__in=user_ids)
-                    ogrenci_ids.extend(ogrenci_objs.values_list('id', flat=True))
+                    ogrenci_ids.extend(user_ids)
                 
-                # Sadece bu öğretmenin öğrencilerine girdiği notları say
-                toplam_not = DersNotu.objects.filter(
-                    ders__id__in=ders_ids,
-                    ogrenci__id__in=set(ogrenci_ids)
-                ).count()
+                # Bugün bu öğrencilerden devamsız olanlar
+                bugun_devamsiz = Devamsizlik.objects.filter(
+                    ogrenci__user_id__in=ogrenci_ids,
+                    tarih=date.today()
+                ).values('ogrenci').distinct().count()
                 
-            except ImportError:
-                toplam_not = 0
-                
+                mevcut_ogrenci = toplam_ogrenci - bugun_devamsiz
+            except:
+                mevcut_ogrenci = toplam_ogrenci
+            
         except ImportError:
             toplam_ogrenci = 0
             toplam_ders = 0
-            toplam_not = 0
-            
+            mevcut_ogrenci = 0
+        
+        # Ödev sayısı
         try:
             from odevler.models import Odev
             odev_sayisi = Odev.objects.filter(ogretmen=user).count()
         except ImportError:
             odev_sayisi = 0
         
-    
-        
         context.update({
-        'toplam_ogrenci': toplam_ogrenci,
-        'toplam_ders': toplam_ders,
-        'toplam_not': toplam_not,
-        'odev_sayisi': odev_sayisi,  # ← Ekle
+            'toplam_ogrenci': toplam_ogrenci,
+            'mevcut_ogrenci': mevcut_ogrenci,  # ← Yeni
+            'toplam_ders': toplam_ders,
+            'odev_sayisi': odev_sayisi,
         })
-    
-    # Admin/Müdür dashboard'u (genel istatistikler)
+  
+   # Admin/Müdür dashboard'u (genel istatistikler)
     elif user.is_authenticated and user.role in ['superuser', 'admin', 'mudur', 'mudur_yardimcisi']:
         try:
             from ogrenciler.models import Ogrenci
@@ -129,24 +117,28 @@ def home(request):
             
         try:
             from devamsizlik.models import Devamsizlik
-            bugun_devamsizlik = Devamsizlik.objects.filter(
-                tarih=timezone.now().date()
-            ).count()
+            from datetime import date  # ← Ekle
+            
+            bugun = date.today()
+            
+            # Bugün devamsız öğrenci sayısı
+            bugun_devamsiz = Devamsizlik.objects.filter(
+                tarih=bugun
+            ).values('ogrenci').distinct().count()
+            
+            # Mevcut öğrenci sayısı
+            mevcut_ogrenci = toplam_ogrenci - bugun_devamsiz
+            
         except ImportError:
-            bugun_devamsizlik = 0
-                
-        try:
-            from not_gir.models import DersNotu
-            toplam_not = DersNotu.objects.count()
-        except ImportError:
-            toplam_not = 0
-        
+            bugun_devamsiz = 0
+            mevcut_ogrenci = 0
+            
         # Duyuru sayısı
         try:
             from duyurular.models import Duyuru
             toplam_duyuru = Duyuru.objects.filter(
                 aktif=True,
-                son_gecerlilik__gte=timezone.now().date()  # ✅ Doğru field
+                son_gecerlilik__gte=timezone.now().date()
             ).count()
         except ImportError:
             toplam_duyuru = 0
@@ -157,20 +149,35 @@ def home(request):
             toplam_kullanici = CustomUser.objects.count()
         except ImportError:
             toplam_kullanici = 0
+            
+        # İzinli personel
+        try:
+            from personel_yonetimi.models import PersonelIzin
+            from datetime import date
+            
+            bugun = date.today()
+            izinli_sayi = PersonelIzin.objects.filter(
+                baslangic_tarihi__lte=bugun,
+                bitis_tarihi__gte=bugun,
+                onaylandi=True
+            ).count()
+        except ImportError:
+            izinli_sayi = 0
 
         context.update({
             'toplam_ogrenci': toplam_ogrenci,
+            'mevcut_ogrenci': mevcut_ogrenci,  # ← Ekle
             'toplam_ders': toplam_ders,
-            'bugun_devamsizlik': bugun_devamsizlik,
-            'toplam_not': toplam_not,
+            
             'toplam_duyuru': toplam_duyuru,
             'toplam_kullanici': toplam_kullanici,
+            'izinli_sayi': izinli_sayi,
         })
-    
-    # Diğer personel dashboard'u
+        
+        # Diğer personel dashboard'u
     elif user.is_authenticated and user.role == 'diger':
         context.update({
-            'toplam_gorev': 1,  # Basit bilgi
+            'toplam_gorev': 1,
             'bekleyen_bildirim': 0,
         })
     
@@ -180,7 +187,6 @@ def home(request):
             'toplam_ogrenci': 0,
             'toplam_ders': 0,
             'bugun_devamsizlik': 0,
-            'toplam_not': 0,
         })
 
-    return render(request, 'home.html', context)
+    return render(request, 'home.html', context)  # ← Bunu ekle

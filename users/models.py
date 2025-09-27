@@ -103,6 +103,10 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         # Diğer
         ('diger', 'Diğer'),
     ]
+    CINSIYET_CHOICES = [
+        ('erkek', 'Erkek'),
+        ('kiz', 'Kız'),
+    ]
 
     
 
@@ -110,6 +114,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
+    cinsiyet = models.CharField(max_length=10, choices=CINSIYET_CHOICES, blank=True,verbose_name="Cinsiyet")
     from_city = models.CharField(max_length=30, choices=ILLER)
     phone_number = models.CharField(max_length=11)
     adress = models.TextField()

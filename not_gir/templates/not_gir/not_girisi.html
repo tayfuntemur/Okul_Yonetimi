@@ -11,10 +11,15 @@
                 </div>
             </div>
 
+           
             <!-- Sınıf ve Ders Seçimi -->
             <div class="row mb-4">
-                <div class="col-md-6">
+                <div class="col-md-12">
                     <form method="get" class="d-flex gap-3">
+                        <input type="hidden" name="sinif_id" value="{{ request.GET.sinif_id }}">
+                        <input type="hidden" name="ders_id" value="{{ request.GET.ders_id }}">
+                        <input type="hidden" name="sube" value="{{ request.GET.sube }}">
+                        
                         <div class="flex-fill">
                             <label class="form-label">Sınıf Seçin:</label>
                             <select name="sinif_id" class="form-select" onchange="this.form.submit()">
@@ -33,21 +38,54 @@
                         </div>
                         
                         {% if selected_sinif %}
-                        <div class="flex-fill">
-                            <label class="form-label">Ders Seçin:</label>
-                            <select name="ders_id" class="form-select" onchange="this.form.submit()">
-                                <option value="">-- Ders Seçin --</option>
-                                {% for ders in available_dersler %}
-                                    <option value="{{ ders.id }}" 
-                                            {% if ders.id|stringformat:"s" == request.GET.ders_id %}selected{% endif %}>
-                                        {{ ders.ad }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </div>
+                            <!-- Şube Seçimi (Branş öğretmenleri ve admin için) -->
+                            {% if user.role == 'ogretmen' and ogretmen_atama and not ogretmen_atama.sube or user.role in 'admin,mudur,mudur_yardimcisi' %}
+                            <div class="flex-fill">
+                                <label class="form-label">Şube Seçin:</label>
+                                <select name="sube" class="form-select" onchange="this.form.submit()">
+                                    <option value="">-- Şube Seçin --</option>
+                                    <option value="A" {% if request.GET.sube == 'A' %}selected{% endif %}>A Şubesi</option>
+                                    <option value="B" {% if request.GET.sube == 'B' %}selected{% endif %}>B Şubesi</option>
+                                    <option value="C" {% if request.GET.sube == 'C' %}selected{% endif %}>C Şubesi</option>
+                                    <option value="D" {% if request.GET.sube == 'D' %}selected{% endif %}>D Şubesi</option>
+                                </select>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="flex-fill">
+                                <label class="form-label">Ders Seçin:</label>
+                                <select name="ders_id" class="form-select" onchange="this.form.submit()">
+                                    <option value="">-- Ders Seçin --</option>
+                                    {% for ders in available_dersler %}
+                                        <option value="{{ ders.id }}" 
+                                                {% if ders.id|stringformat:"s" == request.GET.ders_id %}selected{% endif %}>
+                                            {{ ders.ad }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         {% endif %}
                     </form>
                 </div>
+    
+    {% if selected_sinif and selected_ders %}
+    <div class="col-md-12 mt-3">
+        <div class="alert alert-info mb-0">
+            <strong>Seçili:</strong> 
+            {% if selected_sinif.sinif_seviye == 'anasinif' %}
+                Ana Sınıfı
+            {% else %}
+                {{ selected_sinif.sinif_seviye }}. Sınıf
+            {% endif %}
+            {% if selected_sube %}{{ selected_sube }}{% endif %}
+            - {{ selected_ders.ad }}
+            {% if ogrenciler %}
+                <br><small>{{ ogrenciler.count }} öğrenci</small>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
                 
                 {% if selected_sinif and selected_ders %}
                 <div class="col-md-6 text-end">

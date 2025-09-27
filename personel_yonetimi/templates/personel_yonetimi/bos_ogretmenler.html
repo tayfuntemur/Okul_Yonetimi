@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>👥 Boş Öğretmenler</h2>
+    <p class="text-muted">{{ gun|title }} - {{ saat }}. Saat</p>
+    
+    {% if bos_ogretmenler %}
+    <div class="list-group mt-3">
+        {% for ogretmen in bos_ogretmenler %}
+        <div class="list-group-item">
+            <strong>{{ ogretmen.get_full_name }}</strong>
+            <span class="badge bg-success float-end">Müsait</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning mt-3">
+        Bu saatte müsait öğretmen yok.
+    </div>
+    {% endif %}
+    
+    <a href="{% url 'personel_yonetimi:dashboard' %}" class="btn btn-secondary mt-3">← Geri Dön</a>
+</div>
+{% endblock %}

@@ -10,7 +10,7 @@
 
     {% if user.role == "ogrenci" %}
         <div class="row mb-4">
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
                 <div class="card text-white h-100 gradient-bg shadow">
                     <div class="card-header border-0">
                         <h6 class="card-title mb-0">Notlarım</h6>
@@ -21,7 +21,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 mb-3">
+            <div class="col-md-4 mb-3">
                 <div class="card text-white h-100 gradient-bg shadow">
                     <div class="card-header border-0">
                         <h6 class="card-title mb-0">Devamsızlık</h6>
@@ -59,6 +59,7 @@
                 <a href="{% url 'devamsizlik:ogrenci_devamsizliklari' %}" class="btn btn-info btn-lg mx-2 px-4">📅 Devamsızlıklarım</a>
                 <a href="{% url 'odevler:liste' %}" class="btn btn-success btn-lg mx-2 px-4">📚 Ödevlerim</a>
                 <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-warning btn-lg mx-2 px-4">📢 Duyurular</a>
+                <a href="{% url 'dersler:haftalik_program' %}" class="btn btn-primary btn-lg mx-2 px-4">📅 Ders Programım</a>
             </div>
         </div>
 
@@ -81,23 +82,12 @@
                         <h6 class="card-title mb-0">Öğrencilerim</h6>
                     </div>
                     <div class="card-body text-center">
-                        <h2>{{ toplam_ogrenci|default:0 }}</h2>
-                        <small>Toplam öğrenci</small>
+                        <h2>{{ mevcut_ogrenci|default:0 }} / {{ toplam_ogrenci|default:0 }}</h2>
+                        <small>Mevcut / Toplam öğrenci</small>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 mb-3">
-                <div class="card text-white h-100 gradient-bg shadow">
-                    <div class="card-header border-0">
-                        <h6 class="card-title mb-0">Notlar</h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <h2>{{ toplam_not|default:0 }}</h2>
-                        <small>Girilen not</small>
-                    </div>
-                </div>
-            </div>
-        </div>
+            
         
         <!-- YENİ ÖDEV KARTI -->
         <div class="col-md-3 mb-3">
@@ -125,10 +115,12 @@
             <a href="{% url 'odevler:liste' %}" class="btn btn-success btn-lg mx-2 px-4">📚 Ödevlerim</a>
             <a href="{% url 'odevler:ekle' %}" class="btn btn-info btn-lg mx-2 px-4">➕ Ödev Ekle</a>
             <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-secondary btn-lg mx-2 px-4">📢 Duyurular</a>
+            <a href="{% url 'dersler:haftalik_program' %}" class="btn btn-primary btn-lg mx-2 px-4">📅 Ders Programım</a>
         </div>
     </div>
 
     {% elif user.role in "superuser,mudur,mudur_yardimcisi" %}
+        <!-- İLK SATIR -->
         <div class="row mb-4">
             <div class="col-md-3 mb-3">
                 <div class="card text-white h-100 gradient-bg shadow">
@@ -136,11 +128,12 @@
                         <h6 class="card-title mb-0">Toplam Öğrenci</h6>
                     </div>
                     <div class="card-body text-center">
-                        <h2>{{ toplam_ogrenci|default:0 }}</h2>
-                        <small>Kayıtlı öğrenci</small>
+                        <h2>{{ mevcut_ogrenci|default:0 }} / {{ toplam_ogrenci|default:0 }}</h2>
+                        <small>Mevcut / Toplam öğrenci</small>
                     </div>
                 </div>
             </div>
+
             <div class="col-md-3 mb-3">
                 <div class="card text-white h-100 gradient-bg shadow">
                     <div class="card-header border-0">
@@ -152,32 +145,24 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
-                <div class="card text-white h-100 gradient-bg shadow">
-                    <div class="card-header border-0">
-                        <h6 class="card-title mb-0">Bugün Devamsızlık</h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <h2>{{ bugun_devamsizlik|default:0 }}</h2>
-                        <small>Bugünkü devamsızlık</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card text-white h-100 gradient-bg shadow">
-                    <div class="card-header border-0">
-                        <h6 class="card-title mb-0">Toplam Not</h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <h2>{{ toplam_not|default:0 }}</h2>
-                        <small>Girilmiş not</small>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <!-- İkinci satır: Duyurular ve Sistem Yönetimi kartları -->
-        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card text-white h-100 gradient-bg shadow">
+                    <div class="card-header border-0">
+                        <h6 class="card-title mb-0">📋 İzinli Personel</h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <h2>{{ izinli_sayi|default:0 }}</h2>
+                        <small>Bugün izinli</small>
+                        <div class="mt-2">
+                            <a href="{% url 'personel_yonetimi:dashboard' %}" class="btn btn-light btn-sm">
+                                Görüntüle
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="col-md-3 mb-3">
                 <div class="card text-white h-100 gradient-bg shadow">
                     <div class="card-header border-0">
@@ -194,6 +179,10 @@
                     </div>
                 </div>
             </div>
+        </div>  <!-- ← İLK SATIR KAPANDI -->
+
+        <!-- İKİNCİ SATIR -->
+        <div class="row mb-4">
             <div class="col-md-3 mb-3">
                 <div class="card text-white h-100 gradient-bg shadow">
                     <div class="card-header border-0">
@@ -210,6 +199,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="col-md-3 mb-3">
                 <div class="card text-white h-100 gradient-bg shadow">
                     <div class="card-header border-0">
@@ -226,6 +216,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="col-md-3 mb-3">
                 <div class="card text-white h-100 gradient-bg shadow">
                     <div class="card-header border-0">
@@ -242,22 +233,46 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-md-3 mb-3">
+            <div class="card text-white h-100 gradient-bg shadow">
+                <div class="card-header border-0">
+                    <h6 class="card-title mb-0">📅 Ders Programları</h6>
+                </div>
+                <div class="card-body text-center">
+                    <h5 class="mb-2">Tüm Sınıflar</h5>
+                    <small>Program görüntüle</small>
+                    <div class="mt-2">
+                        <a href="{% url 'dersler:program_admin_goruntule' %}" class="btn btn-light btn-sm">
+                            Görüntüle
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
+        </div>  <!-- ← İKİNCİ SATIR KAPANDI -->
+
 
         <!-- Hızlı Erişim Butonları -->
         <div class="row mt-4">
             <div class="col-12 text-center">
-                <a href="/admin/ogrenciler/sinifdersatama/" class="btn btn-gradient-primary btn-lg mx-2 px-4">
+                <a href="/admin/ogrenciler/sinifdersatama/" class="btn btn-gradient-primary btn-md mx-2 px-1">
                     📚 Sınıf-Ders Ataması
                 </a>
-                <a href="/admin/not_gir/dersnotu/" class="btn btn-info btn-lg mx-2 px-4">
+                <a href="/admin/not_gir/dersnotu/" class="btn btn-info btn-md mx-2 px-1">
                     📝 Not Yönetimi
                 </a>
-                <a href="/admin/duyurular/duyuru/" class="btn btn-warning btn-lg mx-2 px-4">
+                <a href="/admin/duyurular/duyuru/" class="btn btn-warning btn-md mx-2 px-1">
                     📢 Duyuru Yönetimi
                 </a>
-                <a href="/admin/users/customuser/" class="btn btn-success btn-lg mx-2 px-4">
+                <a href="/admin/users/customuser/" class="btn btn-success btn-md mx-2 px-1">
                     👥 Kullanıcı Listesi
+                </a>
+                <a href="{% url 'personel_yonetimi:dashboard' %}" class="btn btn-danger btn-md mx-2 px-1">
+                    📋 Personel Yönetimi
+                </a>
+                <a href="{% url 'dersler:program_tablo_duzenle' %}" class="btn btn-primary btn-lg mx-2 px-4">
+                    📅 Ders Programı Düzenle
                 </a>
             </div>
         </div>

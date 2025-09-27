@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load program_filters %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <h3 class="text-center mb-4">📅 Haftalık Ders Programı</h3>
+    
+    {% if user.role == 'ogrenci' %}
+        <h5 class="text-center text-muted mb-4">{{ user.sinif_seviye }}{{ user.sube }} Sınıfı</h5>
+    {% endif %}
+    
+    <div class="table-responsive">
+        <table class="table table-bordered text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th style="width: 120px;">Saat</th>
+                    {% for gun in gunler %}
+                        <th>{{ gun|title }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for saat in saatler %}
+                    <tr>
+                        <td class="align-middle"><strong>{{ saat }}. Ders</strong><br>
+                            <small>
+                                {% if saat == '1' %}08:00-08:45
+                                {% elif saat == '2' %}09:00-09:45
+                                {% elif saat == '3' %}10:00-10:45
+                                {% elif saat == '4' %}11:00-11:45
+                                {% elif saat == '5' %}13:00-13:45
+                                {% elif saat == '6' %}14:00-14:45
+                                {% endif %}
+                            </small>
+                        </td>
+                        {% for gun in gunler %}
+                            {% with key=gun|add:"_"|add:saat %}
+                                {% with prog=program_data|get_item:key %}
+                                    {% if prog %}
+                                        {% if user.role == 'ogretmen' %}
+                                            <td class="text-white {{ prog.0.ders.renk }}" style="vertical-align: middle;">
+                                                <strong>{{ prog.0.ders.ad }}</strong><br>
+                                                <small>{{ prog.0.sinif_seviye }}{{ prog.0.sube }}</small>
+                                            </td>
+                                        {% else %}
+                                            <td class="text-white {{ prog.ders.renk }}" style="vertical-align: middle;">
+                                                <strong>{{ prog.ders.ad }}</strong>
+                                                {% if prog.ogretmen %}
+                                                    <br><small>{{ prog.ogretmen.get_full_name }}</small>
+                                                {% endif %}
+                                            </td>
+                                        {% endif %}
+                                    {% else %}
+                                        <td class="table-light">-</td>
+                                    {% endif %}
+                                {% endwith %}
+                            {% endwith %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

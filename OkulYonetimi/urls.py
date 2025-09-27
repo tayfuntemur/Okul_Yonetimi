@@ -13,5 +13,6 @@ urlpatterns = [
     path('duyurular/', include('duyurular.urls')),
     path('ogrenciler/', include('ogrenciler.urls')),  # Öğrenci yönetimi
     path('odevler/', include('odevler.urls')),
-    # path('dersler/', include('dersler.urls')),        # Ders yönetimi
+    path('dersler/', include('dersler.urls')),
+    path('personel/', include('personel_yonetimi.urls')),# Ders yönetimi
 ]

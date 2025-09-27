@@ -19,66 +19,88 @@ def yoklama_al(request):
     """
     Ana yoklama alma sayfası - sınıf ve tarih seçimi
     """
+    # Değişkenleri baştan tanımla
+    selected_sinif = request.GET.get('sinif_seviye')
+    selected_sube = request.GET.get('sube')
+    selected_tarih = request.GET.get('tarih', str(date.today()))
+    ogrenciler = []
+    devamsizliklar = {}
+    ogretmen_subeleri = {}
+    
     # Admin/Müdür: Tüm sınıfları görebilir
     if request.user.role in ['admin', 'mudur', 'mudur_yardimcisi']:
         from ogrenciler.models import SinifDersAtama
         siniflar = SinifDersAtama.objects.filter(aktif=True).order_by('sinif_seviye')
     else:
-    # Öğretmen: Sadece kendi atandığı sınıfları görür
+        # Öğretmen: Sadece kendi atandığı sınıfları görür
         ogretmen_atamalari = OgretmenSinifAtama.objects.filter(
             ogretmen=request.user, 
             aktif=True
         )
-
-        # Eğer öğretmenin tek ataması varsa, doğrudan onu seçili yap
-        if ogretmen_atamalari.count() == 1:
-            atama = ogretmen_atamalari.first()
-            selected_sinif = atama.sinif_seviye
-            selected_sube = atama.sube
-            siniflar = [atama]  # Template'e liste olarak gönder
-        else:
-            siniflar = ogretmen_atamalari
-
+        
+        # Sınıf seviyesine göre şubeler
+        for atama in ogretmen_atamalari:
+            if atama.sinif_seviye not in ogretmen_subeleri:
+                ogretmen_subeleri[atama.sinif_seviye] = []
+            if atama.sube:
+                ogretmen_subeleri[atama.sinif_seviye].append(atama.sube)
+        
+        siniflar = ogretmen_atamalari
     
+    # Öğrencileri getir
     if selected_sinif:
-        # Seçilen sınıftaki öğrencileri getir
         ogrenciler_query = Ogrenci.objects.filter(
             user__sinif_seviye=selected_sinif,
             user__role='ogrenci'
         ).select_related('user').order_by('user__last_name')
         
-        if selected_sube:
-            ogrenciler_query = ogrenciler_query.filter(user__sube=selected_sube)
-        
-        # Öğretmen yetkisi kontrolü
+        # Öğretmen için yetki kontrolü
         if request.user.role == 'ogretmen':
-            ogretmen_atama = OgretmenSinifAtama.objects.filter(
-                ogretmen=request.user,
-                sinif_seviye=selected_sinif,
-                aktif=True
-            ).first()
-            
-            selected_tarih = str(date.today())
-            
-            if not ogretmen_atama:
-                messages.error(request, 'Bu sınıfa erişim yetkiniz yok.')
-                return redirect('devamsizlik:yoklama_al')
-            
-            # Sınıf öğretmeni sadece kendi şubesini görebilir
-            if ogretmen_atama.sube and selected_sube != ogretmen_atama.sube:
-                messages.error(request, 'Bu şubeye erişim yetkiniz yok.')
-                return redirect('devamsizlik:yoklama_al')
+            # Şube seçilmişse
+            if selected_sube:
+                # Bu sınıf-şubeye ataması var mı kontrol et
+                ogretmen_atama = OgretmenSinifAtama.objects.filter(
+                    ogretmen=request.user,
+                    sinif_seviye=selected_sinif,
+                    sube=selected_sube,
+                    aktif=True
+                ).first()
+                
+                if not ogretmen_atama:
+                    messages.error(request, 'Bu sınıf/şubeye erişim yetkiniz yok.')
+                    return redirect('devamsizlik:yoklama_al')
+                
+                # Şubeye göre filtrele
+                ogrenciler_query = ogrenciler_query.filter(user__sube=selected_sube)
+            else:
+                # Şube seçilmemiş, sınıf kontrolü yap
+                ogretmen_atama = OgretmenSinifAtama.objects.filter(
+                    ogretmen=request.user,
+                    sinif_seviye=selected_sinif,
+                    aktif=True
+                ).exists()
+                
+                if not ogretmen_atama:
+                    messages.error(request, 'Bu sınıfa erişim yetkiniz yok.')
+                    return redirect('devamsizlik:yoklama_al')
+                
+                # Şube seçilmemiş, öğrenci gösterme
+                ogrenciler_query = Ogrenci.objects.none()
+        else:
+            # Admin/Müdür için şube filtresi
+            if selected_sube:
+                ogrenciler_query = ogrenciler_query.filter(user__sube=selected_sube)
         
         ogrenciler = list(ogrenciler_query)
         
-        # Bu tarihte devamsızlık kayıtlarını getir
-        selected_date = date.fromisoformat(selected_tarih)
-        mevcut_devamsizliklar = Devamsizlik.objects.filter(
-            ogrenci__in=ogrenciler,
-            tarih=selected_date
-        )
-        
-        devamsizliklar = {d.ogrenci.id: d for d in mevcut_devamsizliklar}
+        # Devamsızlık kayıtlarını getir
+        if ogrenciler:
+            selected_date = date.fromisoformat(selected_tarih)
+            mevcut_devamsizliklar = Devamsizlik.objects.filter(
+                ogrenci__in=ogrenciler,
+                tarih=selected_date
+            )
+            devamsizliklar = {d.ogrenci.id: d for d in mevcut_devamsizliklar}
     
     # POST - Yoklama kaydet
     if request.method == 'POST' and ogrenciler:
@@ -90,18 +112,15 @@ def yoklama_al(request):
             ders_sayisi = request.POST.get(f'ders_sayisi_{ogrenci.id}', 1)
             aciklama = request.POST.get(f'aciklama_{ogrenci.id}', '')
             
-            # Mevcut kaydı kontrol et
             mevcut_kayit = devamsizliklar.get(ogrenci.id)
             
-            if devamsiz_mi == 'on':  # Checkbox işaretli
+            if devamsiz_mi == 'on':
                 if mevcut_kayit:
-                    # Güncelle
                     mevcut_kayit.mazeret = mazeret
                     mevcut_kayit.ders_sayisi = int(ders_sayisi)
                     mevcut_kayit.aciklama = aciklama
                     mevcut_kayit.save()
                 else:
-                    # Yeni kayıt oluştur
                     Devamsizlik.objects.create(
                         ogrenci=ogrenci,
                         tarih=selected_date,
@@ -111,7 +130,6 @@ def yoklama_al(request):
                         kaydeden=request.user
                     )
             else:
-                # Checkbox işaretli değil - devamsızlık kaydını sil
                 if mevcut_kayit:
                     mevcut_kayit.delete()
         
@@ -120,6 +138,7 @@ def yoklama_al(request):
     
     context = {
         'siniflar': siniflar,
+        'ogretmen_subeleri': ogretmen_subeleri,
         'selected_tarih': selected_tarih,
         'selected_sinif': selected_sinif,
         'selected_sube': selected_sube,
@@ -130,7 +149,6 @@ def yoklama_al(request):
     }
     
     return render(request, 'devamsizlik/yoklama_al.html', context)
-
 
 @user_passes_test(can_manage_attendance)
 def devamsizlik_listesi(request):
