@@ -1,49 +1,64 @@
 {% extends 'base.html' %}
-{% block title %}Devamsızlık Raporu{% endblock %}
+{% block title %}Devamsızlık Raporu - Okul Yönetimi{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-primary">📊 Devamsızlık Raporu</h2>
-        <div>
-            <a href="{% url 'devamsizlik:yoklama_al' %}" class="btn btn-success">
-                📋 Yoklama Al
-            </a>
-            <a href="{% url 'devamsizlik:devamsizlik_listesi' %}" class="btn btn-info">
-                📝 Kayıt Listesi
-            </a>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="welcome-card text-center mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Devamsızlık Raporu
+                </h2>
+                <p class="mb-0 opacity-75">Sınıf ve öğrenci devamsızlık analizi</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'devamsizlik:yoklama_al' %}" class="btn btn-success btn-sm">
+                    <i class="fas fa-clipboard-check me-1"></i>
+                    Yoklama Al
+                </a>
+                <a href="{% url 'devamsizlik:devamsizlik_listesi' %}" class="btn btn-info btn-sm">
+                    <i class="fas fa-list me-1"></i>
+                    Kayıt Listesi
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- Bugünkü Durum -->
-    <div class="card shadow mb-4">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">📅 Bugünkü Durum - {{ bugun|date:"d F Y" }}</h5>
+    <div class="stats-card mb-4">
+        <div class="card-header bg-gradient-orange text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-calendar-day me-2"></i>
+                Bugünkü Durum - {{ bugun|date:"d F Y" }}
+            </h5>
         </div>
         <div class="card-body">
             {% if sinif_ozetleri %}
                 <div class="row">
                     {% for ozet in sinif_ozetleri %}
-                        <div class="col-md-4 mb-3">
-                            <div class="card border-left-primary h-100">
+                        <div class="col-lg-4 col-md-6 mb-3">
+                            <div class="class-summary-card h-100">
                                 <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="text-primary mb-1">{{ ozet.sinif }} Sınıfı</h6>
-                                            <div class="text-muted small mb-2">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h6 class="text-orange mb-2 fw-bold">{{ ozet.sinif }} Sınıfı</h6>
+                                            <div class="text-muted small mb-3">
+                                                <i class="fas fa-users me-1"></i>
                                                 Toplam: {{ ozet.toplam_ogrenci }} öğrenci
                                             </div>
                                             <div class="row text-center">
                                                 <div class="col-6">
-                                                    <div class="text-success">
-                                                        <strong>{{ ozet.devam_eden }}</strong>
-                                                        <div class="small">Devam Eden</div>
+                                                    <div class="attendance-stat">
+                                                        <div class="stat-number text-success">{{ ozet.devam_eden }}</div>
+                                                        <div class="stat-label">Devam Eden</div>
                                                     </div>
                                                 </div>
                                                 <div class="col-6">
-                                                    <div class="text-danger">
-                                                        <strong>{{ ozet.devamsiz }}</strong>
-                                                        <div class="small">Devamsız</div>
+                                                    <div class="attendance-stat">
+                                                        <div class="stat-number text-danger">{{ ozet.devamsiz }}</div>
+                                                        <div class="stat-label">Devamsız</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -51,10 +66,8 @@
                                         <div class="text-center">
                                             {% if ozet.toplam_ogrenci > 0 %}
                                                 {% widthratio ozet.devam_eden ozet.toplam_ogrenci 100 as devam_yuzdesi %}
-                                                <div class="progress-circle">
-                                                    <span class="{% if devam_yuzdesi >= 90 %}text-success{% elif devam_yuzdesi >= 80 %}text-warning{% else %}text-danger{% endif %}">
-                                                        {{ devam_yuzdesi }}%
-                                                    </span>
+                                                <div class="progress-circle {% if devam_yuzdesi >= 90 %}progress-success{% elif devam_yuzdesi >= 80 %}progress-warning{% else %}progress-danger{% endif %}">
+                                                    <span>{{ devam_yuzdesi }}%</span>
                                                 </div>
                                             {% endif %}
                                         </div>
@@ -65,8 +78,10 @@
                     {% endfor %}
                 </div>
             {% else %}
-                <div class="text-center py-4">
-                    <i class="fas fa-chalkboard-teacher fa-3x text-muted mb-3"></i>
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-chalkboard-teacher fa-4x text-muted"></i>
+                    </div>
                     <h5 class="text-muted">Sınıf bilgisi bulunamadı</h5>
                     <p class="text-muted">
                         {% if user_role == 'ogretmen' %}
@@ -80,100 +95,146 @@
         </div>
     </div>
 
-    <!-- Genel İstatistikler -->
+    <!-- Analiz ve Trend -->
     <div class="row mb-4">
-        <div class="col-md-8">
-            <div class="card shadow h-100">
+        <div class="col-lg-8 mb-3">
+            <div class="stats-card h-100">
                 <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">📈 Bu Hafta Trend</h5>
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Bu Hafta Trend
+                    </h5>
                 </div>
                 <div class="card-body">
-                    <div class="text-center py-4">
-                        <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
-                        <h5 class="text-muted">Haftalık Trend Grafiği</h5>
-                        <p class="text-muted">Yakında eklenecek...</p>
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-chart-line fa-4x text-info"></i>
+                        </div>
+                        <h5 class="text-info">Haftalık Trend Grafiği</h5>
+                        <p class="text-muted mb-3">Geliştirme aşamasında...</p>
+                        <button class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-chart-bar me-1"></i>
+                            Detaylı Analiz
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card shadow h-100">
+        <div class="col-lg-4 mb-3">
+            <div class="stats-card h-100">
                 <div class="card-header bg-warning text-white">
-                    <h5 class="mb-0">⚠️ Dikkat Gereken</h5>
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Dikkat Gereken
+                    </h5>
                 </div>
                 <div class="card-body">
                     <div class="text-center py-4">
-                        <i class="fas fa-exclamation-triangle fa-4x text-warning mb-3"></i>
-                        <h5 class="text-muted">Yüksek Devamsızlık</h5>
-                        <p class="text-muted">Takip gereken öğrenciler...</p>
-                        <button class="btn btn-warning btn-sm">Detay Göster</button>
+                        <div class="mb-3">
+                            <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center" 
+                                 style="width: 80px; height: 80px;">
+                                <i class="fas fa-user-clock fa-3x text-warning"></i>
+                            </div>
+                        </div>
+                        <h6 class="text-warning">Yüksek Devamsızlık</h6>
+                        <p class="text-muted small">Takip gereken öğrenciler</p>
+                        <button class="btn btn-warning btn-sm">
+                            <i class="fas fa-eye me-1"></i>
+                            Detay Göster
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Hızlı Aksiyonlar -->
-    <div class="card shadow">
+    <!-- Hızlı İşlemler -->
+    <div class="stats-card mb-4">
         <div class="card-header bg-secondary text-white">
-            <h5 class="mb-0">🚀 Hızlı İşlemler</h5>
+            <h5 class="mb-0">
+                <i class="fas fa-bolt me-2"></i>
+                Hızlı İşlemler
+            </h5>
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-md-3 mb-3">
-                    <div class="d-grid">
-                        <button class="btn btn-outline-primary" onclick="exportToExcel()">
-                            📊 Excel'e Aktar
-                        </button>
-                    </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <a href="#" class="quick-action-btn text-decoration-none" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel text-success"></i>
+                        <div class="fw-semibold">Excel'e Aktar</div>
+                        <small class="text-muted">Rapor indir</small>
+                    </a>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <div class="d-grid">
-                        <button class="btn btn-outline-success" onclick="printReport()">
-                            🖨️ Rapor Yazdır
-                        </button>
-                    </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <a href="#" class="quick-action-btn text-decoration-none" onclick="printReport()">
+                        <i class="fas fa-print text-primary"></i>
+                        <div class="fw-semibold">Rapor Yazdır</div>
+                        <small class="text-muted">PDF çıktısı</small>
+                    </a>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <div class="d-grid">
-                        <button class="btn btn-outline-warning" onclick="sendSMS()">
-                            📱 SMS Gönder
-                        </button>
-                    </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <a href="#" class="quick-action-btn text-decoration-none" onclick="sendSMS()">
+                        <i class="fas fa-sms text-warning"></i>
+                        <div class="fw-semibold">SMS Gönder</div>
+                        <small class="text-muted">Velilere bildir</small>
+                    </a>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <div class="d-grid">
-                        <button class="btn btn-outline-info" onclick="showSettings()">
-                            ⚙️ Ayarlar
-                        </button>
-                    </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <a href="#" class="quick-action-btn text-decoration-none" onclick="showSettings()">
+                        <i class="fas fa-cog text-secondary"></i>
+                        <div class="fw-semibold">Ayarlar</div>
+                        <small class="text-muted">Rapor ayarları</small>
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Aylık Özet -->
-    <div class="card shadow mt-4">
+    <div class="stats-card">
         <div class="card-header bg-success text-white">
-            <h5 class="mb-0">📅 Aylık Özet</h5>
+            <h5 class="mb-0">
+                <i class="fas fa-calendar-alt me-2"></i>
+                Aylık Özet
+            </h5>
         </div>
         <div class="card-body">
-            <div class="row">
-                <div class="col-md-3 text-center">
-                    <h4 class="text-primary">0</h4>
-                    <p class="text-muted mb-0">Bu Ay Toplam</p>
+            <div class="row text-center">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="monthly-stat">
+                        <div class="stat-icon bg-primary bg-opacity-10">
+                            <i class="fas fa-calendar-day text-primary"></i>
+                        </div>
+                        <h4 class="text-primary mb-1">0</h4>
+                        <p class="text-muted mb-0">Bu Ay Toplam</p>
+                    </div>
                 </div>
-                <div class="col-md-3 text-center">
-                    <h4 class="text-success">0</h4>
-                    <p class="text-muted mb-0">Mazeretli</p>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="monthly-stat">
+                        <div class="stat-icon bg-success bg-opacity-10">
+                            <i class="fas fa-check-circle text-success"></i>
+                        </div>
+                        <h4 class="text-success mb-1">0</h4>
+                        <p class="text-muted mb-0">Mazeretli</p>
+                    </div>
                 </div>
-                <div class="col-md-3 text-center">
-                    <h4 class="text-danger">0</h4>
-                    <p class="text-muted mb-0">Mazeretsiz</p>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="monthly-stat">
+                        <div class="stat-icon bg-danger bg-opacity-10">
+                            <i class="fas fa-times-circle text-danger"></i>
+                        </div>
+                        <h4 class="text-danger mb-1">0</h4>
+                        <p class="text-muted mb-0">Mazeretsiz</p>
+                    </div>
                 </div>
-                <div class="col-md-3 text-center">
-                    <h4 class="text-info">%0</h4>
-                    <p class="text-muted mb-0">Devam Oranı</p>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="monthly-stat">
+                        <div class="stat-icon bg-info bg-opacity-10">
+                            <i class="fas fa-percentage text-info"></i>
+                        </div>
+                        <h4 class="text-info mb-1">%0</h4>
+                        <p class="text-muted mb-0">Devam Oranı</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -182,7 +243,8 @@
 
 <script>
 function exportToExcel() {
-    alert('Excel export özelliği yakında eklenecek...');
+    // Geliştirme için placeholder
+    alert('Excel export özelliği geliştirme aşamasında...');
 }
 
 function printReport() {
@@ -190,29 +252,11 @@ function printReport() {
 }
 
 function sendSMS() {
-    alert('SMS gönderme özelliği yakında eklenecek...');
+    alert('SMS gönderme özelliği geliştirme aşamasında...');
 }
 
 function showSettings() {
-    alert('Ayarlar sayfası yakında eklenecek...');
+    alert('Ayarlar sayfası geliştirme aşamasında...');
 }
 </script>
-
-<style>
-.border-left-primary {
-    border-left: 4px solid #007bff !important;
-}
-
-.progress-circle {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    border: 4px solid #e9ecef;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: bold;
-}
-</style>
 {% endblock %}

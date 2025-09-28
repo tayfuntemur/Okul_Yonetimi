@@ -1,30 +1,47 @@
 {% extends 'base.html' %}
-{% block title %}Devamsızlık Listesi{% endblock %}
+{% block title %}Devamsızlık Listesi - Okul Yönetimi{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-primary">📋 Devamsızlık Kayıtları</h2>
-        <div>
-            <a href="{% url 'devamsizlik:yoklama_al' %}" class="btn btn-success">
-                ➕ Yoklama Al
-            </a>
-            <a href="{% url 'devamsizlik:devamsizlik_raporu' %}" class="btn btn-info">
-                📊 Raporlar
-            </a>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="welcome-card text-center mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1">
+                    <i class="fas fa-clipboard-list me-2"></i>
+                    Devamsızlık Kayıtları
+                </h2>
+                <p class="mb-0 opacity-75">Devamsızlık kayıtları ve filtreleme</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'devamsizlik:yoklama_al' %}" class="btn btn-success btn-sm">
+                    <i class="fas fa-plus me-1"></i>
+                    Yoklama Al
+                </a>
+                <a href="{% url 'devamsizlik:devamsizlik_raporu' %}" class="btn btn-info btn-sm">
+                    <i class="fas fa-chart-bar me-1"></i>
+                    Raporlar
+                </a>
+            </div>
         </div>
     </div>
 
     <!-- Filtreleme -->
-    <div class="card shadow mb-4">
-        <div class="card-header bg-secondary text-white">
-            <h5 class="mb-0">🔍 Filtreleme</h5>
+    <div class="stats-card mb-4">
+        <div class="card-header bg-gradient-orange text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-filter me-2"></i>
+                Filtreleme Seçenekleri
+            </h5>
         </div>
         <div class="card-body">
             <form method="get" class="row g-3">
-                <div class="col-md-2">
-                    <label class="form-label">Sınıf:</label>
-                    <select name="sinif_seviye" class="form-select">
+                <div class="col-lg-2 col-md-4">
+                    <label class="form-label fw-semibold">
+                        <i class="fas fa-graduation-cap me-1 text-orange"></i>
+                        Sınıf
+                    </label>
+                    <select name="sinif_seviye" class="form-control">
                         <option value="">Tümü</option>
                         <option value="anasinif" {% if sinif_seviye == 'anasinif' %}selected{% endif %}>Ana Sınıfı</option>
                         <option value="1" {% if sinif_seviye == '1' %}selected{% endif %}>1. Sınıf</option>
@@ -37,44 +54,69 @@
                         <option value="8" {% if sinif_seviye == '8' %}selected{% endif %}>8. Sınıf</option>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">Şube:</label>
-                    <select name="sube" class="form-select">
+                <div class="col-lg-2 col-md-4">
+                    <label class="form-label fw-semibold">
+                        <i class="fas fa-door-open me-1 text-orange"></i>
+                        Şube
+                    </label>
+                    <select name="sube" class="form-control">
                         <option value="">Tümü</option>
-                        <option value="A" {% if sube == 'A' %}selected{% endif %}>A</option>
-                        <option value="B" {% if sube == 'B' %}selected{% endif %}>B</option>
-                        <option value="C" {% if sube == 'C' %}selected{% endif %}>C</option>
-                        <option value="D" {% if sube == 'D' %}selected{% endif %}>D</option>
+                        <option value="A" {% if sube == 'A' %}selected{% endif %}>A Şubesi</option>
+                        <option value="B" {% if sube == 'B' %}selected{% endif %}>B Şubesi</option>
+                        <option value="C" {% if sube == 'C' %}selected{% endif %}>C Şubesi</option>
+                        <option value="D" {% if sube == 'D' %}selected{% endif %}>D Şubesi</option>
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">Mazeret:</label>
-                    <select name="mazeret" class="form-select">
+                <div class="col-lg-2 col-md-4">
+                    <label class="form-label fw-semibold">
+                        <i class="fas fa-tag me-1 text-orange"></i>
+                        Mazeret
+                    </label>
+                    <select name="mazeret" class="form-control">
                         <option value="">Tümü</option>
                         {% for value, label in mazeret_choices %}
                             <option value="{{ value }}" {% if mazeret == value %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">Başlangıç:</label>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label fw-semibold">
+                        <i class="fas fa-calendar me-1 text-orange"></i>
+                        Başlangıç
+                    </label>
                     <input type="date" name="baslangic_tarih" class="form-control" value="{{ baslangic_tarih }}">
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">Bitiş:</label>
+                <div class="col-lg-2 col-md-6">
+                    <label class="form-label fw-semibold">
+                        <i class="fas fa-calendar-check me-1 text-orange"></i>
+                        Bitiş
+                    </label>
                     <input type="date" name="bitis_tarih" class="form-control" value="{{ bitis_tarih }}">
                 </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary">Filtrele</button>
+                <div class="col-lg-2 col-md-12 d-flex align-items-end">
+                    <button type="submit" class="btn-custom-primary w-100">
+                        <i class="fas fa-search me-1"></i>
+                        Filtrele
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Devamsızlık Listesi -->
-    <div class="card shadow">
+    <div class="stats-card">
         <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Devamsızlık Kayıtları</h5>
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>
+                    Devamsızlık Kayıtları
+                </h5>
+                {% if devamsizliklar %}
+                    <span class="badge bg-light text-dark">
+                        {{ devamsizliklar|length }} kayıt bulundu
+                    </span>
+                {% endif %}
+            </div>
         </div>
         <div class="card-body p-0">
             {% if devamsizliklar %}
@@ -93,33 +135,62 @@
                         </thead>
                         <tbody>
                             {% for devamsizlik in devamsizliklar %}
-                                <tr>
+                                <tr class="absence-row">
                                     <td>
-                                        <strong>{{ devamsizlik.ogrenci.ad_soyad }}</strong><br>
-                                        <small class="text-muted">No: {{ devamsizlik.ogrenci.okul_numarasi }}</small>
+                                        <div class="d-flex align-items-center">
+                                            <div class="student-avatar me-3">
+                                                {{ devamsizlik.ogrenci.ad_soyad|slice:":2"|upper }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">{{ devamsizlik.ogrenci.ad_soyad }}</div>
+                                                <small class="text-muted">No: {{ devamsizlik.ogrenci.okul_numarasi }}</small>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>
-                                        <span class="badge bg-info">{{ devamsizlik.ogrenci.sinif_info }}</span>
+                                        <span class="badge bg-info rounded-pill">{{ devamsizlik.ogrenci.sinif_info }}</span>
                                     </td>
-                                    <td>{{ devamsizlik.tarih|date:"d.m.Y" }}</td>
+                                    <td>
+                                        <div class="date-info">
+                                            <div class="fw-semibold">{{ devamsizlik.tarih|date:"d.m.Y" }}</div>
+                                            <small class="text-muted">{{ devamsizlik.tarih|date:"l" }}</small>
+                                        </div>
+                                    </td>
                                     <td>
                                         {% if devamsizlik.mazeret == 'mazeretsiz' %}
-                                            <span class="badge bg-danger">{{ devamsizlik.get_mazeret_display }}</span>
+                                            <span class="badge bg-danger rounded-pill">{{ devamsizlik.get_mazeret_display }}</span>
                                         {% elif devamsizlik.mazeret == 'izinli' %}
-                                            <span class="badge bg-success">{{ devamsizlik.get_mazeret_display }}</span>
+                                            <span class="badge bg-success rounded-pill">{{ devamsizlik.get_mazeret_display }}</span>
                                         {% elif devamsizlik.mazeret == 'rapor' %}
-                                            <span class="badge bg-warning">{{ devamsizlik.get_mazeret_display }}</span>
+                                            <span class="badge bg-warning rounded-pill">{{ devamsizlik.get_mazeret_display }}</span>
                                         {% else %}
-                                            <span class="badge bg-secondary">{{ devamsizlik.get_mazeret_display }}</span>
+                                            <span class="badge bg-secondary rounded-pill">{{ devamsizlik.get_mazeret_display }}</span>
                                         {% endif %}
                                     </td>
-                                    <td class="text-center">{{ devamsizlik.ders_sayisi }}</td>
-                                    <td>{{ devamsizlik.aciklama|default:"-" }}</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark rounded-pill">
+                                            {{ devamsizlik.ders_sayisi }} ders
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="{% if not devamsizlik.aciklama %}text-muted fst-italic{% endif %}">
+                                            {{ devamsizlik.aciklama|default:"Açıklama yok" }}
+                                        </span>
+                                    </td>
                                     <td>
                                         {% if devamsizlik.kaydeden %}
-                                            {{ devamsizlik.kaydeden.get_full_name }}
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-user-circle text-muted me-2"></i>
+                                                <div>
+                                                    <div class="fw-semibold">{{ devamsizlik.kaydeden.get_full_name }}</div>
+                                                    <small class="text-muted">{{ devamsizlik.kaydeden.get_role_display }}</small>
+                                                </div>
+                                            </div>
                                         {% else %}
-                                            <em class="text-muted">Sistem</em>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-cog text-muted me-2"></i>
+                                                <span class="text-muted fst-italic">Sistem</span>
+                                            </div>
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -127,17 +198,57 @@
                         </tbody>
                     </table>
                 </div>
+                
+                <!-- Tablo Alt Bilgi -->
+                <div class="card-footer bg-light">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Toplam {{ devamsizliklar|length }} devamsızlık kaydı gösteriliyor
+                            </small>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <button class="btn btn-outline-success btn-sm" onclick="exportTable()">
+                                <i class="fas fa-download me-1"></i>
+                                Excel'e Aktar
+                            </button>
+                        </div>
+                    </div>
+                </div>
             {% else %}
                 <div class="text-center py-5">
-                    <i class="fas fa-clipboard fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">Devamsızlık kaydı bulunamadı</h5>
-                    <p class="text-muted">Seçilen kriterlere uygun devamsızlık kaydı yok.</p>
-                    <a href="{% url 'devamsizlik:yoklama_al' %}" class="btn btn-primary">
-                        Yoklama Al
-                    </a>
+                    <div class="mb-4">
+                        <div class="rounded-circle bg-muted bg-opacity-10 d-inline-flex align-items-center justify-content-center" 
+                             style="width: 100px; height: 100px;">
+                            <i class="fas fa-clipboard fa-4x text-muted"></i>
+                        </div>
+                    </div>
+                    <h5 class="text-muted mb-3">Devamsızlık kaydı bulunamadı</h5>
+                    <p class="text-muted mb-4">Seçilen kriterlere uygun devamsızlık kaydı yok.</p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a href="{% url 'devamsizlik:yoklama_al' %}" class="btn-custom-primary">
+                            <i class="fas fa-plus me-1"></i>
+                            Yoklama Al
+                        </a>
+                        <button class="btn btn-outline-secondary" onclick="clearFilters()">
+                            <i class="fas fa-times me-1"></i>
+                            Filtreleri Temizle
+                        </button>
+                    </div>
                 </div>
             {% endif %}
         </div>
     </div>
 </div>
+
+<script>
+function exportTable() {
+    alert('Excel export özelliği geliştirme aşamasında...');
+}
+
+function clearFilters() {
+    window.location.href = window.location.pathname;
+}
+</script>
 {% endblock %}

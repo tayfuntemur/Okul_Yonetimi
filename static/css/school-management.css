@@ -1,0 +1,654 @@
+/* ==========================================================================
+   OKUL YÖNETİMİ SİSTEMİ - MODERN CSS
+   ========================================================================== */
+
+/* CSS Custom Properties (Variables) */
+:root {
+    --primary-orange: #FF6B35;
+    --secondary-orange: #FF8C42;
+    --dark-bg: #1a1a1a;
+    --darker-bg: #0d1117;
+    --sidebar-bg: #2c2c2c;
+    --card-bg: #ffffff;
+    --text-light: #6c757d;
+    --border-color: #dee2e6;
+    --shadow-light: 0 8px 25px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 15px 35px rgba(0, 0, 0, 0.15);
+    --shadow-orange: 0 8px 25px rgba(255, 107, 53, 0.3);
+    --transition: all 0.3s ease;
+}
+
+/* ==========================================================================
+   BASE STYLES
+   ========================================================================== */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    line-height: 1.6;
+}
+
+/* ==========================================================================
+   NAVIGATION STYLES
+   ========================================================================== */
+
+.navbar-custom {
+    background: linear-gradient(135deg, var(--dark-bg) 0%, var(--sidebar-bg) 100%);
+    border-bottom: 3px solid var(--primary-orange);
+    padding: 0.5rem 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: white !important;
+    transition: var(--transition);
+}
+
+.navbar-brand:hover {
+    transform: scale(1.05);
+}
+
+.navbar-brand .brand-accent {
+    color: var(--primary-orange) !important;
+}
+
+.navbar-brand i {
+    margin-right: 0.5rem;
+    font-size: 1.6rem;
+}
+
+/* ==========================================================================
+   SIDEBAR STYLES
+   ========================================================================== */
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 76px 0 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(180deg, var(--sidebar-bg) 0%, var(--dark-bg) 100%);
+    width: 260px;
+    transition: var(--transition);
+}
+
+.sidebar-sticky {
+    position: relative;
+    top: 0;
+    height: calc(100vh - 76px);
+    padding-top: 1rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+/* Custom Scrollbar for Sidebar */
+.sidebar-sticky::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-sticky::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-sticky::-webkit-scrollbar-thumb {
+    background: var(--primary-orange);
+    border-radius: 3px;
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    margin: 3px 15px;
+    padding: 12px 15px;
+    transition: var(--transition);
+    font-weight: 500;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar .nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.sidebar .nav-link:hover::before {
+    left: 100%;
+}
+
+.sidebar .nav-link:hover {
+    color: white;
+    background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+    transform: translateX(5px);
+    box-shadow: var(--shadow-orange);
+}
+
+.sidebar .nav-link.active {
+    color: white;
+    background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+    border-color: var(--secondary-orange);
+    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+}
+
+.sidebar .nav-link i {
+    width: 20px;
+    text-align: center;
+    margin-right: 10px;
+}
+
+/* ==========================================================================
+   MAIN CONTENT
+   ========================================================================== */
+
+.main-content {
+    margin-left: 260px;
+    padding: 20px;
+    padding-top: 100px; /* Fixed navbar için üst boşluk */
+    min-height: 100vh;
+    transition: var(--transition);
+}
+
+/* ==========================================================================
+   CARD STYLES
+   ========================================================================== */
+
+.stats-card {
+    background: linear-gradient(135deg, var(--card-bg) 0%, #f8f9ff 100%);
+    border: none;
+    border-radius: 15px;
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+    overflow: hidden;
+    position: relative;
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-orange), var(--secondary-orange));
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-medium);
+}
+
+.stats-card .card-header {
+    background: transparent;
+    border: none;
+    padding: 1.5rem 1.5rem 0.5rem;
+}
+
+.stats-card .card-body {
+    padding: 0.5rem 1.5rem 1.5rem;
+}
+
+.stats-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-orange);
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(255, 107, 53, 0.2);
+}
+
+.stats-label {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+/* ==========================================================================
+   BUTTON STYLES
+   ========================================================================== */
+
+.btn-custom-primary {
+    background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    padding: 12px 24px;
+    transition: var(--transition);
+    text-decoration: none;
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-custom-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-custom-primary:hover::before {
+    left: 100%;
+}
+
+.btn-custom-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-orange);
+    color: white;
+}
+
+.btn-custom-primary:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
+}
+
+.quick-action-btn {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 15px;
+    padding: 20px 15px;
+    text-align: center;
+    transition: var(--transition);
+    color: var(--dark-bg);
+    text-decoration: none;
+    display: block;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.quick-action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.quick-action-btn:hover::before {
+    opacity: 0.1;
+}
+
+.quick-action-btn:hover {
+    border-color: var(--primary-orange);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(255, 107, 53, 0.15);
+    color: var(--primary-orange);
+}
+
+.quick-action-btn i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--primary-orange);
+    transition: var(--transition);
+}
+
+.quick-action-btn:hover i {
+    transform: scale(1.1);
+}
+
+.quick-action-btn .fw-semibold {
+    position: relative;
+    z-index: 2;
+}
+
+/* ==========================================================================
+   USER INFO STYLES
+   ========================================================================== */
+
+.user-info {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 8px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: var(--transition);
+}
+
+.user-info:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* ==========================================================================
+   WELCOME CARD
+   ========================================================================== */
+
+.welcome-card {
+    background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+    color: white;
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 15px 35px rgba(255, 107, 53, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    transition: var(--transition);
+}
+
+.welcome-card:hover::before {
+    transform: scale(1.1);
+}
+
+.welcome-card h2 {
+    position: relative;
+    z-index: 2;
+}
+
+.welcome-card p {
+    position: relative;
+    z-index: 2;
+}
+
+/* ==========================================================================
+   ALERT STYLES
+   ========================================================================== */
+
+.alert {
+    border: none;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    border-left: 4px solid;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    border-left-color: #20c997;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #dc3545, #fd7e14);
+    color: white;
+    border-left-color: #fd7e14;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #ffc107, #fd7e14);
+    color: white;
+    border-left-color: #fd7e14;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #17a2b8, #007bff);
+    color: white;
+    border-left-color: #007bff;
+}
+
+/* ==========================================================================
+   RESPONSIVE DESIGN
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .main-content {
+        margin-left: 0;
+        padding: 15px;
+        padding-top: 85px; /* Mobile'da biraz daha az boşluk */
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .welcome-card {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .welcome-card h2 {
+        font-size: 1.5rem;
+    }
+    
+    .stats-number {
+        font-size: 2rem;
+    }
+    
+    .quick-action-btn {
+        padding: 15px 10px;
+    }
+    
+    .quick-action-btn i {
+        font-size: 1.5rem;
+    }
+    
+    .navbar-brand {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .stats-card .card-header,
+    .stats-card .card-body {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .welcome-card {
+        padding: 1rem;
+    }
+    
+    .welcome-card h2 {
+        font-size: 1.25rem;
+    }
+    
+    .user-info {
+        font-size: 0.875rem;
+    }
+}
+
+/* ==========================================================================
+   ANIMATIONS
+   ========================================================================== */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.stats-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.stats-card:nth-child(1) { animation-delay: 0.1s; }
+.stats-card:nth-child(2) { animation-delay: 0.2s; }
+.stats-card:nth-child(3) { animation-delay: 0.3s; }
+.stats-card:nth-child(4) { animation-delay: 0.4s; }
+
+.btn-custom-primary:active {
+    animation: pulse 0.3s ease-in-out;
+}
+
+/* ==========================================================================
+   UTILITIES
+   ========================================================================== */
+
+.bg-gradient-orange {
+    background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+}
+
+.text-orange {
+    color: var(--primary-orange);
+}
+
+.border-orange {
+    border-color: var(--primary-orange);
+}
+
+.shadow-orange {
+    box-shadow: var(--shadow-orange);
+}
+
+.rounded-15 {
+    border-radius: 15px;
+}
+
+.rounded-20 {
+    border-radius: 20px;
+}
+
+/* ==========================================================================
+   ADDITIONAL FORM STYLES
+   ========================================================================== */
+
+.form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 12px 15px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.form-control:focus {
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.15);
+    background: white;
+}
+
+/* ==========================================================================
+   STUDENT AVATAR STYLES
+   ========================================================================== */
+
+.student-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   PROGRESS CIRCLES AND STATISTICS
+   ========================================================================== */
+
+.progress-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 4px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    transition: var(--transition);
+}
+
+.progress-success {
+    border-color: #28a745;
+    color: #28a745;
+}
+
+.progress-warning {
+    border-color: #ffc107;
+    color: #ffc107;
+}
+
+.progress-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.class-summary-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    border-left: 4px solid var(--primary-orange);
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+}
+
+.class-summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.attendance-stat {
+    padding: 0.5rem;
+}
+
+.attendance-stat .stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.attendance-stat .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.monthly-stat {
+    text-align: center;
+    padding: 1rem;
+}
+
+.monthly-stat .stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.5rem;
+}

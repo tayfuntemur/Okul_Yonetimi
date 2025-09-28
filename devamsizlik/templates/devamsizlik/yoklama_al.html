@@ -1,78 +1,102 @@
 {% extends 'base.html' %}
 {% load get_item %}
-{% block title %}Yoklama Al{% endblock %}
-
+{% block title %}Yoklama Al - Okul Yönetimi{% endblock %}
 
 {% block content %}
-<style>
-.form-select:focus {
-    box-shadow: none !important;
-}
-</style>
-<div class="container mt-4">
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="welcome-card text-center mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1">
+                    <i class="fas fa-clipboard-check me-2"></i>
+                    Yoklama Al
+                </h2>
+                <p class="mb-0 opacity-75">Öğrenci devamsızlık takibi</p>
+            </div>
+            <div class="user-info">
+                <i class="fas fa-user-circle me-2"></i>
+                {{ user.get_full_name }} - {{ user.get_role_display }}
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="text-primary">📋 Yoklama Al</h2>
-                <div class="badge bg-info fs-6">
-                    {{ user.get_full_name }} - {{ user.get_role_display }}
-                </div>
-            </div>
-
             <!-- Sınıf ve Tarih Seçimi -->
-            <div class="card shadow mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Sınıf ve Tarih Seçimi</h5>
+            <div class="stats-card mb-4">
+                <div class="card-header bg-gradient-orange text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>
+                        Sınıf ve Tarih Seçimi
+                    </h5>
                 </div>
                 <div class="card-body">
                     <form method="get" class="row g-3">
-    <!-- Hidden input'lar - sadece değişmeyecek olanlar -->
-    <input type="hidden" name="tarih" value="{{ selected_tarih }}">
-    
-    <!-- Sınıf Seçimi -->
-    <div class="col-md-3">
-        <label class="form-label">🎓 Sınıf Seviyesi:</label>
-        <select name="sinif_seviye" class="form-select" onchange="this.form.submit()">
-            <option value="">-- Sınıf Seçin --</option>
-            {% regroup siniflar by sinif_seviye as sinif_groups %}
-            {% for group in sinif_groups %}
-                <option value="{{ group.grouper }}" {% if group.grouper == selected_sinif %}selected{% endif %}>
-                    {{ group.grouper }}. Sınıf
-                </option>
-            {% endfor %}
-        </select>
-    </div>
-    
-    <!-- Şube Seçimi -->
-    {% if selected_sinif %}
-    <div class="col-md-3">
-        <label class="form-label">🏫 Şube:</label>
-        <select name="sube" class="form-select" onchange="this.form.submit()">
-            {% if user_role == 'ogretmen' %}
-                {% for sube in ogretmen_subeleri|get_item:selected_sinif %}
-                    <option value="{{ sube }}" {% if selected_sube == sube %}selected{% endif %}>
-                        {{ sube }} Şubesi
-                    </option>
-                {% endfor %}
-            {% else %}
-                <option value="A" {% if selected_sube == 'A' %}selected{% endif %}>A Şubesi</option>
-                <option value="B" {% if selected_sube == 'B' %}selected{% endif %}>B Şubesi</option>
-                <option value="C" {% if selected_sube == 'C' %}selected{% endif %}>C Şubesi</option>
-                <option value="D" {% if selected_sube == 'D' %}selected{% endif %}>D Şubesi</option>
-            {% endif %}
-        </select>
-    </div>
-    {% endif %}
-</form>
+                        <input type="hidden" name="tarih" value="{{ selected_tarih }}">
+                        
+                        <!-- Sınıf Seçimi -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-graduation-cap me-2 text-orange"></i>
+                                Sınıf Seviyesi
+                            </label>
+                            <select name="sinif_seviye" class="form-control" onchange="this.form.submit()">
+                                <option value="">-- Sınıf Seçin --</option>
+                                {% regroup siniflar by sinif_seviye as sinif_groups %}
+                                {% for group in sinif_groups %}
+                                    <option value="{{ group.grouper }}" {% if group.grouper == selected_sinif %}selected{% endif %}>
+                                        {{ group.grouper }}. Sınıf
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Şube Seçimi -->
+                        {% if selected_sinif %}
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-door-open me-2 text-orange"></i>
+                                Şube
+                            </label>
+                            <select name="sube" class="form-control" onchange="this.form.submit()">
+                                {% if user_role == 'ogretmen' %}
+                                    {% for sube in ogretmen_subeleri|get_item:selected_sinif %}
+                                        <option value="{{ sube }}" {% if selected_sube == sube %}selected{% endif %}>
+                                            {{ sube }} Şubesi
+                                        </option>
+                                    {% endfor %}
+                                {% else %}
+                                    <option value="A" {% if selected_sube == 'A' %}selected{% endif %}>A Şubesi</option>
+                                    <option value="B" {% if selected_sube == 'B' %}selected{% endif %}>B Şubesi</option>
+                                    <option value="C" {% if selected_sube == 'C' %}selected{% endif %}>C Şubesi</option>
+                                    <option value="D" {% if selected_sube == 'D' %}selected{% endif %}>D Şubesi</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Tarih Bilgisi -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-calendar me-2 text-orange"></i>
+                                Seçilen Tarih
+                            </label>
+                            <div class="form-control bg-light text-muted">
+                                {{ selected_tarih }}
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
 
             {% if ogrenciler %}
                 <!-- Yoklama Formu -->
-                <div class="card shadow">
+                <div class="stats-card">
                     <div class="card-header bg-success text-white">
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">
+                                <i class="fas fa-list-check me-2"></i>
                                 {% if selected_sinif == 'anasinif' %}
                                     Ana Sınıfı
                                 {% else %}
@@ -81,8 +105,15 @@
                                 {% if selected_sube %} - {{ selected_sube }} Şubesi{% endif %}
                                 Yoklama Listesi
                             </h5>
-                            <div class="badge bg-light text-dark fs-6">
-                                {{ selected_tarih }} | {{ ogrenciler|length }} Öğrenci
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge bg-light text-dark">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    {{ selected_tarih }}
+                                </span>
+                                <span class="badge bg-light text-dark">
+                                    <i class="fas fa-users me-1"></i>
+                                    {{ ogrenciler|length }} Öğrenci
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -94,17 +125,22 @@
                             <!-- Hızlı İşlemler -->
                             <div class="p-3 border-bottom bg-light">
                                 <div class="row align-items-center">
-                                    <div class="col-md-6">
-                                        <button type="button" class="btn btn-sm btn-success me-2" onclick="selectAll(true)">
-                                            ✅ Tümünü Seç
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-danger me-2" onclick="selectAll(false)">
-                                            ❌ Tümünü Kaldır
-                                        </button>
+                                    <div class="col-md-8">
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-success btn-sm" onclick="selectAll(true)">
+                                                <i class="fas fa-check-circle me-1"></i>
+                                                Tümünü Seç
+                                            </button>
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="selectAll(false)">
+                                                <i class="fas fa-times-circle me-1"></i>
+                                                Tümünü Kaldır
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6 text-end">
+                                    <div class="col-md-4 text-end">
                                         <small class="text-muted">
-                                            💡 İpucu: Devamsız öğrencileri işaretleyin
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Devamsız öğrencileri işaretleyin
                                         </small>
                                     </div>
                                 </div>
@@ -115,7 +151,7 @@
                                 <table class="table table-hover mb-0">
                                     <thead class="table-dark">
                                         <tr>
-                                            <th style="width: 60px;">Devamsız</th>
+                                            <th style="width: 80px;" class="text-center">Devamsız</th>
                                             <th>Öğrenci Bilgileri</th>
                                             <th style="width: 150px;">Mazeret</th>
                                             <th style="width: 120px;">Ders Sayısı</th>
@@ -125,24 +161,23 @@
                                     <tbody>
                                         {% for ogrenci in ogrenciler %}
                                             {% with devamsizlik=devamsizliklar|default_if_none:''|get_item:ogrenci.id %}
-                                                <tr class="{% if devamsizlik %}table-warning{% endif %}">
+                                                <tr class="{% if devamsizlik %}table-warning{% endif %} student-row">
                                                     <td class="text-center">
-                                                        <input type="checkbox" 
-                                                               name="devamsiz_{{ ogrenci.id }}" 
-                                                               class="form-check-input devamsiz-checkbox" 
-                                                               {% if devamsizlik %}checked{% endif %}
-                                                               onchange="toggleRow(this)">
+                                                        <div class="form-check">
+                                                            <input type="checkbox" 
+                                                                   name="devamsiz_{{ ogrenci.id }}" 
+                                                                   class="form-check-input devamsiz-checkbox" 
+                                                                   {% if devamsizlik %}checked{% endif %}
+                                                                   onchange="toggleRow(this)">
+                                                        </div>
                                                     </td>
                                                     <td>
                                                         <div class="d-flex align-items-center">
-                                                            <div class="me-3">
-                                                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                                                     style="width: 40px; height: 40px; font-size: 14px; font-weight: bold;">
-                                                                    {{ ogrenci.ad_soyad|slice:":2"|upper }}
-                                                                </div>
+                                                            <div class="student-avatar me-3">
+                                                                {{ ogrenci.ad_soyad|slice:":2"|upper }}
                                                             </div>
                                                             <div>
-                                                                <strong>{{ ogrenci.ad_soyad }}</strong><br>
+                                                                <div class="fw-semibold">{{ ogrenci.ad_soyad }}</div>
                                                                 <small class="text-muted">
                                                                     {{ ogrenci.sinif_info }} - No: {{ ogrenci.okul_numarasi }}
                                                                 </small>
@@ -151,7 +186,7 @@
                                                     </td>
                                                     <td>
                                                         <select name="mazeret_{{ ogrenci.id }}" 
-                                                                class="form-select form-select-sm mazeret-select" 
+                                                                class="form-control form-control-sm mazeret-select" 
                                                                 {% if not devamsizlik %}disabled{% endif %}>
                                                             {% for value, label in mazeret_choices %}
                                                                 <option value="{{ value }}" 
@@ -186,9 +221,10 @@
                             </div>
                             
                             <!-- Kaydet Butonu -->
-                            <div class="card-footer text-center">
-                                <button type="submit" class="btn btn-success btn-lg px-5">
-                                    💾 Yoklamayı Kaydet
+                            <div class="card-footer text-center bg-light">
+                                <button type="submit" class="btn-custom-primary btn-lg">
+                                    <i class="fas fa-save me-2"></i>
+                                    Yoklamayı Kaydet
                                 </button>
                             </div>
                         </form>
@@ -197,28 +233,56 @@
                 
             {% elif selected_sinif %}
                 <!-- Öğrenci Yok -->
-                <div class="alert alert-warning text-center">
-                    <h5>Bu sınıfta öğrenci bulunamadı</h5>
-                    <p>Seçilen sınıfa henüz öğrenci kaydedilmemiş veya erişim yetkiniz yok.</p>
+                <div class="stats-card border-warning">
+                    <div class="card-body text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-user-slash fa-4x text-warning"></i>
+                        </div>
+                        <h5 class="text-warning">Bu sınıfta öğrenci bulunamadı</h5>
+                        <p class="text-muted">Seçilen sınıfa henüz öğrenci kaydedilmemiş veya erişim yetkiniz yok.</p>
+                    </div>
                 </div>
                 
             {% else %}
                 <!-- Başlangıç Durumu -->
-                <div class="text-center py-5">
-                    <div class="card border-0">
-                        <div class="card-body">
-                            <div class="mb-4">
-                                <i class="fas fa-clipboard-check fa-5x text-muted"></i>
+                <div class="stats-card">
+                    <div class="card-body text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-clipboard-check fa-5x text-orange"></i>
+                        </div>
+                        <h4 class="text-orange mb-3">Yoklama Almaya Hoş Geldiniz</h4>
+                        <p class="text-muted mb-4">Başlamak için yukarıdan sınıf seçin.</p>
+                        
+                        {% if user_role == 'ogretmen' %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Öğretmen Yetkileri:</strong><br>
+                                Sadece atandığınız sınıflara yoklama alabilirsiniz.
                             </div>
-                            <h4 class="text-muted">Yoklama Almaya Hoş Geldiniz</h4>
-                            <p class="text-muted">Başlamak için yukarıdan tarih ve sınıf seçin.</p>
-                            
-                            {% if user_role == 'ogretmen' %}
-                                <div class="alert alert-info mt-3">
-                                    <strong>Öğretmen Yetkileri:</strong><br>
-                                    Sadece atandığınız sınıflara yoklama alabilirsiniz.
+                        {% endif %}
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-4">
+                                <div class="text-center p-3">
+                                    <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                                    <h6>Sınıf Seçimi</h6>
+                                    <small class="text-muted">Yoklama alacağınız sınıfı seçin</small>
                                 </div>
-                            {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center p-3">
+                                    <i class="fas fa-check-square fa-2x text-success mb-2"></i>
+                                    <h6>Devamsızlık İşaretle</h6>
+                                    <small class="text-muted">Devamsız öğrencileri işaretleyin</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center p-3">
+                                    <i class="fas fa-save fa-2x text-warning mb-2"></i>
+                                    <h6>Kaydet</h6>
+                                    <small class="text-muted">Yoklama bilgilerini kaydedin</small>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

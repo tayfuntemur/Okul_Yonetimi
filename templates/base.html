@@ -1,90 +1,256 @@
 <!doctype html>
-<html lang="en">
-  <head>
+<html lang="tr">
+<head>
     {% load static %}
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Bu site, Django ile geliştirilmiş bir yönetim paneli sunar.">
+    <meta name="description" content="Modern Okul Yönetim Sistemi">
     <meta name="author" content="Tayfun Temür">
     <meta name="generator" content="Django">
-    <meta name="theme-color" content="#712cf9">
+    <meta name="theme-color" content="#FF6B35">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{% static 'css/carousel.css' %}" rel="stylesheet">
-    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    {% comment %} <link href="{% static 'css/carousel.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet"> {% endcomment %}
+    <link href="{% static 'css/school-management.css' %}" rel="stylesheet">
+    <link href="{% static 'css/login.css' %}" rel="stylesheet">
 
-    <title>Okul Yönetimi</title>  
-   
-  </head>
+    <title>{% block title %}Okul Yönetimi{% endblock %}</title>
+</head>
 
-  <body>
-    
-    <header>
-<nav class="navbar navbar-expand-lg navbar-dark shadow-lg" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-    <div class="container-fluid px-4">
-        <a class="navbar-brand fw-bold fs-3" href="{% url 'home' %}">
-            🎓 <span class="text-warning">Okul</span> Yönetimi
-        </a>
-        
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item mx-2">
-                    <a class="nav-link fs-5 px-3 py-2 rounded" href="{% url 'home' %}">
-                        📊 Dashboard
-                    </a>
-                </li>
-                {% if request.user.is_authenticated and user.role in "superuser,mudur,mudur_yardimcisi" %}
-                <li class="nav-item mx-2">
-                    <a class="nav-link fs-5 px-3 py-2 rounded" href="/admin/">
-                        ⚙️ Admin Panel
-                    </a>
-                </li>
-                {% endif %}
-            </ul>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top navbar-custom">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="fas fa-graduation-cap me-2"></i>
+                <span class="brand-accent">Okul</span> Yönetimi
+            </a>
             
-            <div class="d-flex align-items-center gap-3">
+            <button class="navbar-toggler d-md-none" type="button" id="sidebarToggle">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="navbar-nav ms-auto">
                 {% if request.user.is_authenticated %}
-                    <div class="d-flex align-items-center gap-2 bg-white bg-opacity-10 rounded px-3 py-2">
-                        <span class="text-warning fw-bold">👤</span>
-                        <span class="text-white fw-semibold">{{ user.first_name }} {{ user.last_name }}</span>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="user-info d-flex align-items-center gap-2">
+                            <i class="fas fa-user-circle text-warning"></i>
+                            <span class="fw-semibold">{{ user.first_name }} {{ user.last_name }}</span>
+                            <span class="badge bg-warning text-dark">{{ user.get_role_display }}</span>
+                        </div>
+                        <a href="{% url 'users:change_password' %}" class="btn btn-outline-warning btn-sm">
+                            <i class="fas fa-key me-1"></i>Şifre
+                        </a>
+                        <a href="{% url 'users:logout_view' %}" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-sign-out-alt me-1"></i>Çıkış
+                        </a>
                     </div>
-                    <a href="{% url 'users:logout_view' %}" class="btn btn-danger btn-lg px-4">Çıkış</a>
-                    <a href="{% url 'users:change_password' %}" class="btn btn-warning btn-lg px-4">Şifre Değiştir</a>
-                {% else %}  
-                    <a href="{% url 'users:login_view' %}" class="btn btn-success btn-lg px-4">Giriş</a>
+                {% else %}
+                    <a href="{% url 'users:login_view' %}" class="btn btn-custom-primary">
+                        <i class="fas fa-sign-in-alt me-1"></i>Giriş
+                    </a>
                 {% endif %}
             </div>
         </div>
-    </div>
-</nav>
-</header>
+    </nav>
 
-  <main>
+    <!-- Sidebar -->
+    {% if request.user.is_authenticated %}
+    <nav id="sidebarMenu" class="sidebar d-md-block">
+        <div class="sidebar-sticky">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'home' %}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+                
+                {% if user.role == "ogrenci" %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'not_gir:ogrenci_notlari' %}">
+                            <i class="fas fa-chart-line"></i>
+                            Notlarım
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'devamsizlik:ogrenci_devamsizliklari' %}">
+                            <i class="fas fa-calendar-check"></i>
+                            Devamsızlıklarım
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'odevler:liste' %}">
+                            <i class="fas fa-book"></i>
+                            Ödevlerim
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dersler:haftalik_program' %}">
+                            <i class="fas fa-calendar"></i>
+                            Ders Programım
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'duyurular:duyuru_listesi' %}">
+                            <i class="fas fa-bullhorn"></i>
+                            Duyurular
+                        </a>
+                    </li>
+                
+                {% elif user.role == "ogretmen" %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'not_gir:not_girisi' %}">
+                            <i class="fas fa-edit"></i>
+                            Not Girişi
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'devamsizlik:yoklama_al' %}">
+                            <i class="fas fa-clipboard-check"></i>
+                            Yoklama
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'odevler:liste' %}">
+                            <i class="fas fa-tasks"></i>
+                            Ödev Yönetimi
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dersler:haftalik_program' %}">
+                            <i class="fas fa-calendar"></i>
+                            Ders Programım
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'duyurular:duyuru_listesi' %}">
+                            <i class="fas fa-bullhorn"></i>
+                            Duyurular
+                        </a>
+                    </li>
+                
+                {% elif user.role in "superuser,mudur,mudur_yardimcisi" %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/">
+                            <i class="fas fa-cogs"></i>
+                            Admin Panel
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/users/customuser/">
+                            <i class="fas fa-users"></i>
+                            Kullanıcı Yönetimi
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/ogrenciler/sinifdersatama/">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            Sınıf-Ders Ataması
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dersler:program_tablo_duzenle' %}">
+                            <i class="fas fa-table"></i>
+                            Ders Programı
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'personel_yonetimi:dashboard' %}">
+                            <i class="fas fa-id-badge"></i>
+                            Personel Yönetimi
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/duyurular/duyuru/">
+                            <i class="fas fa-megaphone"></i>
+                            Duyuru Yönetimi
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/not_gir/dersnotu/">
+                            <i class="fas fa-chart-bar"></i>
+                            Raporlar
+                        </a>
+                    </li>
+                
+                {% elif user.role == "diger" %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-tools"></i>
+                            Arıza Bildirimi
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-clipboard-list"></i>
+                            Günlük Rapor
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-clock"></i>
+                            Vardiya Programı
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'duyurular:duyuru_listesi' %}">
+                            <i class="fas fa-bullhorn"></i>
+                            Duyurular
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+    {% endif %}
 
-      <!-- Mesajlar -->
-  <div class="container mt-4">
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
-    {% endfor %}
-  {% endif %}
+    <!-- Main Content -->
+    <main class="{% if request.user.is_authenticated %}main-content{% else %}container mt-5{% endif %}">
+        <!-- Messages -->
+        {% if messages %}
+            <div class="container-fluid mb-4">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
-  {% block content %}
-  {% endblock %}
-</div>
-
-
-     
-
+        {% block content %}
+        {% endblock %}
     </main>
-     
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sidebar toggle for mobile
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebarMenu');
+        
+        if (sidebarToggle && sidebar) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+            });
+        }
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
+        // Active link handling
+        const currentLocation = location.pathname;
+        const menuItems = document.querySelectorAll('.sidebar .nav-link');
+        
+        menuItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.getAttribute('href') === currentLocation) {
+                item.classList.add('active');
+            }
+        });
+    </script>
 
-   
-  </body>
+    {% block extra_js %}
+    {% endblock %}
+</body>
 </html>

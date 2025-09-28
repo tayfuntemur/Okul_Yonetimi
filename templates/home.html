@@ -1,334 +1,552 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-5">
 
-    <div class="p-3 bg-light rounded shadow mb-4">
-        <h4 class="text-primary text-center mb-0">
-            Hoş geldiniz, {{ user.first_name }}!
-        </h4>
-    </div>
-
-    {% if user.role == "ogrenci" %}
-        <div class="row mb-4">
-            <div class="col-md-4 mb-3">
-                <div class="card text-white h-100 gradient-bg shadow">
-                    <div class="card-header border-0">
-                        <h6 class="card-title mb-0">Notlarım</h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <h2>Not Ortalaması</h2>
-                        <small>Bu dönem</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="card text-white h-100 gradient-bg shadow">
-                    <div class="card-header border-0">
-                        <h6 class="card-title mb-0">Devamsızlık</h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <h2>{{ bugun_devamsizlik|default:0 }}</h2>
-                        <small>Bu ay</small>
-                    </div>
-                </div>
-            </div>  
-            <!-- YENİ ÖDEV KARTI -->
-            <div class="col-md-4 mb-3">
-                <div class="card text-white h-100 gradient-bg shadow">
-                    <div class="card-header border-0">
-                        <h6 class="card-title mb-0">📚 Ödevlerim</h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <h2>{{ odev_sayisi|default:0 }}</h2>
-                        <small>Aktif ödev</small>
-                        <div class="mt-2">
-                            <a href="{% url 'odevler:liste' %}" class="btn btn-light btn-sm">
-                                Görüntüle
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        
-        
-        <div class="row mt-4">
-            <div class="col-12 text-center">
-                <a href="{% url 'not_gir:ogrenci_notlari' %}" class="btn btn-gradient-primary btn-lg mx-2 px-4">📝 Notlarım</a>
-                <a href="{% url 'devamsizlik:ogrenci_devamsizliklari' %}" class="btn btn-info btn-lg mx-2 px-4">📅 Devamsızlıklarım</a>
-                <a href="{% url 'odevler:liste' %}" class="btn btn-success btn-lg mx-2 px-4">📚 Ödevlerim</a>
-                <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-warning btn-lg mx-2 px-4">📢 Duyurular</a>
-                <a href="{% url 'dersler:haftalik_program' %}" class="btn btn-primary btn-lg mx-2 px-4">📅 Ders Programım</a>
-            </div>
-        </div>
-
-    {% elif user.role == "ogretmen" %}
-        <div class="row mb-4">
-            <div class="col-md-4 mb-3">
-                <div class="card text-white h-100 gradient-bg shadow">
-                    <div class="card-header border-0">
-                        <h6 class="card-title mb-0">Derslerim</h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <h2>{{ toplam_ders|default:0 }}</h2>
-                        <small>Aktif ders</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-3">
-                <div class="card text-white h-100 gradient-bg shadow">
-                    <div class="card-header border-0">
-                        <h6 class="card-title mb-0">Öğrencilerim</h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <h2>{{ mevcut_ogrenci|default:0 }} / {{ toplam_ogrenci|default:0 }}</h2>
-                        <small>Mevcut / Toplam öğrenci</small>
-                    </div>
-                </div>
-            </div>
-            
-        
-        <!-- YENİ ÖDEV KARTI -->
-        <div class="col-md-3 mb-3">
-            <div class="card text-white h-100 gradient-bg shadow">
-                <div class="card-header border-0">
-                    <h6 class="card-title mb-0">📚 Ödevler</h6>
-                </div>
-                <div class="card-body text-center">
-                    <h2>{{ odev_sayisi|default:0 }}</h2>
-                    <small>Verilen ödev</small>
-                    <div class="mt-2">
-                        <a href="{% url 'odevler:ekle' %}" class="btn btn-light btn-sm">
-                            Yeni Ekle
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="row mt-4">
-        <div class="col-12 text-center">
-            <a href="{% url 'not_gir:not_girisi' %}" class="btn btn-gradient-primary btn-lg mx-2 px-4">📝 Not Gir</a>
-            <a href="{% url 'devamsizlik:yoklama_al' %}" class="btn btn-warning btn-lg mx-2 px-4">📋 Yoklama Al</a>
-            <a href="{% url 'odevler:liste' %}" class="btn btn-success btn-lg mx-2 px-4">📚 Ödevlerim</a>
-            <a href="{% url 'odevler:ekle' %}" class="btn btn-info btn-lg mx-2 px-4">➕ Ödev Ekle</a>
-            <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-secondary btn-lg mx-2 px-4">📢 Duyurular</a>
-            <a href="{% url 'dersler:haftalik_program' %}" class="btn btn-primary btn-lg mx-2 px-4">📅 Ders Programım</a>
-        </div>
-    </div>
-
-    {% elif user.role in "superuser,mudur,mudur_yardimcisi" %}
-        <!-- İLK SATIR -->
-        <div class="row mb-4">
-            <div class="col-md-3 mb-3">
-                <div class="card text-white h-100 gradient-bg shadow">
-                    <div class="card-header border-0">
-                        <h6 class="card-title mb-0">Toplam Öğrenci</h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <h2>{{ mevcut_ogrenci|default:0 }} / {{ toplam_ogrenci|default:0 }}</h2>
-                        <small>Mevcut / Toplam öğrenci</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3 mb-3">
-                <div class="card text-white h-100 gradient-bg shadow">
-                    <div class="card-header border-0">
-                        <h6 class="card-title mb-0">Aktif Dersler</h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <h2>{{ toplam_ders|default:0 }}</h2>
-                        <small>Mevcut ders</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3 mb-3">
-                <div class="card text-white h-100 gradient-bg shadow">
-                    <div class="card-header border-0">
-                        <h6 class="card-title mb-0">📋 İzinli Personel</h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <h2>{{ izinli_sayi|default:0 }}</h2>
-                        <small>Bugün izinli</small>
-                        <div class="mt-2">
-                            <a href="{% url 'personel_yonetimi:dashboard' %}" class="btn btn-light btn-sm">
-                                Görüntüle
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3 mb-3">
-                <div class="card text-white h-100 gradient-bg shadow">
-                    <div class="card-header border-0">
-                        <h6 class="card-title mb-0">📢 Duyurular</h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <h2>{{ toplam_duyuru|default:0 }}</h2>
-                        <small>Aktif duyuru</small>
-                        <div class="mt-2">
-                            <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-light btn-sm">
-                                Görüntüle
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>  <!-- ← İLK SATIR KAPANDI -->
-
-        <!-- İKİNCİ SATIR -->
-        <div class="row mb-4">
-            <div class="col-md-3 mb-3">
-                <div class="card text-white h-100 gradient-bg shadow">
-                    <div class="card-header border-0">
-                        <h6 class="card-title mb-0">👥 Kullanıcı Yönetimi</h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <h2>{{ toplam_kullanici|default:0 }}</h2>
-                        <small>Toplam kullanıcı</small>
-                        <div class="mt-2">
-                            <a href="/admin/users/customuser/add/" class="btn btn-light btn-sm">
-                                Yeni Ekle
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3 mb-3">
-                <div class="card text-white h-100 gradient-bg shadow">
-                    <div class="card-header border-0">
-                        <h6 class="card-title mb-0">⚙️ Sistem Ayarları</h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="mb-2">Admin Panel</h5>
-                        <small>Tüm ayarlar</small>
-                        <div class="mt-2">
-                            <a href="/admin/" class="btn btn-light btn-sm">
-                                Yönet
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3 mb-3">
-                <div class="card text-white h-100 gradient-bg shadow">
-                    <div class="card-header border-0">
-                        <h6 class="card-title mb-0">📊 Raporlar</h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5 class="mb-2">Okul Raporu</h5>
-                        <small>İstatistikler</small>
-                        <div class="mt-2">
-                            <a href="#" class="btn btn-light btn-sm">
-                                Görüntüle
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3 mb-3">
-            <div class="card text-white h-100 gradient-bg shadow">
-                <div class="card-header border-0">
-                    <h6 class="card-title mb-0">📅 Ders Programları</h6>
-                </div>
-                <div class="card-body text-center">
-                    <h5 class="mb-2">Tüm Sınıflar</h5>
-                    <small>Program görüntüle</small>
-                    <div class="mt-2">
-                        <a href="{% url 'dersler:program_admin_goruntule' %}" class="btn btn-light btn-sm">
-                            Görüntüle
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-        </div>  <!-- ← İKİNCİ SATIR KAPANDI -->
-
-
-        <!-- Hızlı Erişim Butonları -->
-        <div class="row mt-4">
-            <div class="col-12 text-center">
-                <a href="/admin/ogrenciler/sinifdersatama/" class="btn btn-gradient-primary btn-md mx-2 px-1">
-                    📚 Sınıf-Ders Ataması
-                </a>
-                <a href="/admin/not_gir/dersnotu/" class="btn btn-info btn-md mx-2 px-1">
-                    📝 Not Yönetimi
-                </a>
-                <a href="/admin/duyurular/duyuru/" class="btn btn-warning btn-md mx-2 px-1">
-                    📢 Duyuru Yönetimi
-                </a>
-                <a href="/admin/users/customuser/" class="btn btn-success btn-md mx-2 px-1">
-                    👥 Kullanıcı Listesi
-                </a>
-                <a href="{% url 'personel_yonetimi:dashboard' %}" class="btn btn-danger btn-md mx-2 px-1">
-                    📋 Personel Yönetimi
-                </a>
-                <a href="{% url 'dersler:program_tablo_duzenle' %}" class="btn btn-primary btn-lg mx-2 px-4">
-                    📅 Ders Programı Düzenle
-                </a>
-            </div>
-        </div>
-
-    {% elif user.role == "diger" %}
-        <div class="row mb-4">
-            <div class="col-md-6 mb-3">
-                <div class="card text-white h-100 gradient-bg shadow">
-                    <div class="card-header border-0">
-                        <h6 class="card-title mb-0">Görevim</h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <h5>{{ user.gorev }}</h5>
-                        <small>Aktif görev</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="card text-white h-100 gradient-bg shadow">
-                    <div class="card-header border-0">
-                        <h6 class="card-title mb-0">Bildirimler</h6>
-                    </div>
-                    <div class="card-body text-center">
-                        <h2>0</h2>
-                        <small>Bekleyen bildirim</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row mt-4">
-            <div class="col-12 text-center">
-                <a href="#" class="btn btn-gradient-primary btn-lg mx-2 px-4">🔧 Arıza Bildirimi</a>
-                <a href="#" class="btn btn-warning btn-lg mx-2 px-4">📋 Günlük Rapor</a>
-                <a href="#" class="btn btn-info btn-lg mx-2 px-4">📅 Vardiya Programı</a>
-                <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-warning btn-lg mx-2 px-4">📢 Duyurular</a>
-            </div>
-        </div>
-        
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card shadow">
-                    <div class="card-header">
-                        <h6>Personel Bilgileri</h6>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Ad Soyad:</strong> {{ user.first_name }} {{ user.last_name }}</p>
-                        <p><strong>Görev:</strong> {{ user.gorev }}</p>
-                        <p><strong>Sigorta No:</strong> {{ user.sigorta_no|default:"Belirtilmemiş" }}</p>
-                        <p><strong>İşe Başlama:</strong> {{ user.join_date|date:"d.m.Y" }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    
-    {% endif %}
-
+<!-- Welcome Card -->
+<div class="welcome-card text-center">
+    <h2 class="mb-0">
+        <i class="fas fa-hand-wave me-2"></i>
+        Hoş geldiniz, {{ user.first_name }}!
+    </h2>
+    <p class="mb-0 mt-2 opacity-75">{{ user.get_role_display }} olarak giriş yaptınız</p>
 </div>
+
+{% if user.role == "ogrenci" %}
+    <!-- Öğrenci Dashboard -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="stats-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="stats-label mb-0">Notlarım</h6>
+                        <i class="fas fa-chart-line text-primary fa-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="stats-number">{{ not_ortalamasi|default:"--" }}</h2>
+                    <p class="stats-label">Bu dönem ortalaması</p>
+                    <a href="{% url 'not_gir:ogrenci_notlari' %}" class="btn btn-custom-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i>Görüntüle
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stats-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="stats-label mb-0">Devamsızlık</h6>
+                        <i class="fas fa-calendar-times text-warning fa-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="stats-number">{{ bugun_devamsizlik|default:0 }}</h2>
+                    <p class="stats-label">Bu ay devamsızlık</p>
+                    <a href="{% url 'devamsizlik:ogrenci_devamsizliklari' %}" class="btn btn-custom-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i>Görüntüle
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stats-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="stats-label mb-0">Ödevlerim</h6>
+                        <i class="fas fa-book text-success fa-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="stats-number">{{ odev_sayisi|default:0 }}</h2>
+                    <p class="stats-label">Aktif ödev</p>
+                    <a href="{% url 'odevler:liste' %}" class="btn btn-custom-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i>Görüntüle
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Öğrenci Hızlı Erişim -->
+    <div class="row">
+        <div class="col-12">
+            <div class="stats-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>
+                        Hızlı Erişim
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 col-6 mb-3">
+                            <a href="{% url 'not_gir:ogrenci_notlari' %}" class="quick-action-btn">
+                                <i class="fas fa-chart-line"></i>
+                                <div class="fw-semibold">Notlarım</div>
+                            </a>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <a href="{% url 'devamsizlik:ogrenci_devamsizliklari' %}" class="quick-action-btn">
+                                <i class="fas fa-calendar-check"></i>
+                                <div class="fw-semibold">Devamsızlık</div>
+                            </a>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <a href="{% url 'odevler:liste' %}" class="quick-action-btn">
+                                <i class="fas fa-book"></i>
+                                <div class="fw-semibold">Ödevlerim</div>
+                            </a>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <a href="{% url 'duyurular:duyuru_listesi' %}" class="quick-action-btn">
+                                <i class="fas fa-bullhorn"></i>
+                                <div class="fw-semibold">Duyurular</div>
+                            </a>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <a href="{% url 'dersler:haftalik_program' %}" class="quick-action-btn">
+                                <i class="fas fa-calendar"></i>
+                                <div class="fw-semibold">Ders Programı</div>
+                            </a>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <a href="#" class="quick-action-btn">
+                                <i class="fas fa-user"></i>
+                                <div class="fw-semibold">Profil</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% elif user.role == "ogretmen" %}
+    <!-- Öğretmen Dashboard -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="stats-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="stats-label mb-0">Derslerim</h6>
+                        <i class="fas fa-chalkboard-teacher text-primary fa-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="stats-number">{{ toplam_ders|default:0 }}</h2>
+                    <p class="stats-label">Aktif ders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stats-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="stats-label mb-0">Öğrencilerim</h6>
+                        <i class="fas fa-users text-info fa-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="stats-number">{{ mevcut_ogrenci|default:0 }}/{{ toplam_ogrenci|default:0 }}</h2>
+                    <p class="stats-label">Mevcut / Toplam</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stats-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="stats-label mb-0">Ödevler</h6>
+                        <i class="fas fa-tasks text-success fa-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="stats-number">{{ odev_sayisi|default:0 }}</h2>
+                    <p class="stats-label">Verilen ödev</p>
+                    <a href="{% url 'odevler:ekle' %}" class="btn btn-custom-primary btn-sm">
+                        <i class="fas fa-plus me-1"></i>Yeni Ekle
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Öğretmen Hızlı Erişim -->
+    <div class="row">
+        <div class="col-12">
+            <div class="stats-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>
+                        Hızlı Erişim
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 col-6 mb-3">
+                            <a href="{% url 'not_gir:not_girisi' %}" class="quick-action-btn">
+                                <i class="fas fa-edit"></i>
+                                <div class="fw-semibold">Not Gir</div>
+                            </a>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <a href="{% url 'devamsizlik:yoklama_al' %}" class="quick-action-btn">
+                                <i class="fas fa-clipboard-check"></i>
+                                <div class="fw-semibold">Yoklama Al</div>
+                            </a>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <a href="{% url 'odevler:liste' %}" class="quick-action-btn">
+                                <i class="fas fa-tasks"></i>
+                                <div class="fw-semibold">Ödev Yönetimi</div>
+                            </a>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <a href="{% url 'odevler:ekle' %}" class="quick-action-btn">
+                                <i class="fas fa-plus"></i>
+                                <div class="fw-semibold">Ödev Ekle</div>
+                            </a>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <a href="{% url 'duyurular:duyuru_listesi' %}" class="quick-action-btn">
+                                <i class="fas fa-bullhorn"></i>
+                                <div class="fw-semibold">Duyurular</div>
+                            </a>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <a href="{% url 'dersler:haftalik_program' %}" class="quick-action-btn">
+                                <i class="fas fa-calendar"></i>
+                                <div class="fw-semibold">Ders Programı</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% elif user.role in "superuser,mudur,mudur_yardimcisi" %}
+    <!-- Admin Dashboard -->
+    <!-- İstatistik Kartları - İlk Satır -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="stats-label mb-0">Toplam Öğrenci</h6>
+                        <i class="fas fa-user-graduate text-primary fa-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="stats-number">{{ mevcut_ogrenci|default:0 }}/{{ toplam_ogrenci|default:0 }}</h2>
+                    <p class="stats-label">Mevcut / Toplam</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="stats-label mb-0">Aktif Dersler</h6>
+                        <i class="fas fa-book text-success fa-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="stats-number">{{ toplam_ders|default:0 }}</h2>
+                    <p class="stats-label">Mevcut ders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="stats-label mb-0">İzinli Personel</h6>
+                        <i class="fas fa-user-clock text-warning fa-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="stats-number">{{ izinli_sayi|default:0 }}</h2>
+                    <p class="stats-label">Bugün izinli</p>
+                    <a href="{% url 'personel_yonetimi:dashboard' %}" class="btn btn-custom-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i>Görüntüle
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="stats-label mb-0">Duyurular</h6>
+                        <i class="fas fa-bullhorn text-info fa-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="stats-number">{{ toplam_duyuru|default:0 }}</h2>
+                    <p class="stats-label">Aktif duyuru</p>
+                    <a href="{% url 'duyurular:duyuru_listesi' %}" class="btn btn-custom-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i>Görüntüle
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- İstatistik Kartları - İkinci Satır -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="stats-label mb-0">Kullanıcı Yönetimi</h6>
+                        <i class="fas fa-users text-primary fa-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="stats-number">{{ toplam_kullanici|default:0 }}</h2>
+                    <p class="stats-label">Toplam kullanıcı</p>
+                    <a href="/admin/users/customuser/add/" class="btn btn-custom-primary btn-sm">
+                        <i class="fas fa-plus me-1"></i>Yeni Ekle
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="stats-label mb-0">Sistem Ayarları</h6>
+                        <i class="fas fa-cogs text-secondary fa-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="mb-2">Admin Panel</h5>
+                    <p class="stats-label">Tüm ayarlar</p>
+                    <a href="/admin/" class="btn btn-custom-primary btn-sm">
+                        <i class="fas fa-external-link-alt me-1"></i>Yönet
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="stats-label mb-0">Raporlar</h6>
+                        <i class="fas fa-chart-bar text-success fa-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="mb-2">Okul Raporu</h5>
+                    <p class="stats-label">İstatistikler</p>
+                    <a href="#" class="btn btn-custom-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i>Görüntüle
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="stats-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="stats-label mb-0">Ders Programları</h6>
+                        <i class="fas fa-calendar text-info fa-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="mb-2">Tüm Sınıflar</h5>
+                    <p class="stats-label">Program görüntüle</p>
+                    <a href="{% url 'dersler:program_admin_goruntule' %}" class="btn btn-custom-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i>Görüntüle
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Hızlı Erişim -->
+    <div class="row">
+        <div class="col-12">
+            <div class="stats-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>
+                        Hızlı Erişim - Yönetim Araçları
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-2 col-md-3 col-6 mb-3">
+                            <a href="/admin/ogrenciler/sinifdersatama/" class="quick-action-btn">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                                <div class="fw-semibold">Sınıf-Ders Ataması</div>
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6 mb-3">
+                            <a href="/admin/not_gir/dersnotu/" class="quick-action-btn">
+                                <i class="fas fa-edit"></i>
+                                <div class="fw-semibold">Not Yönetimi</div>
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6 mb-3">
+                            <a href="/admin/duyurular/duyuru/" class="quick-action-btn">
+                                <i class="fas fa-megaphone"></i>
+                                <div class="fw-semibold">Duyuru Yönetimi</div>
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6 mb-3">
+                            <a href="/admin/users/customuser/" class="quick-action-btn">
+                                <i class="fas fa-users"></i>
+                                <div class="fw-semibold">Kullanıcı Listesi</div>
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6 mb-3">
+                            <a href="{% url 'personel_yonetimi:dashboard' %}" class="quick-action-btn">
+                                <i class="fas fa-id-badge"></i>
+                                <div class="fw-semibold">Personel Yönetimi</div>
+                            </a>
+                        </div>
+                        <div class="col-lg-2 col-md-3 col-6 mb-3">
+                            <a href="{% url 'dersler:program_tablo_duzenle' %}" class="quick-action-btn">
+                                <i class="fas fa-table"></i>
+                                <div class="fw-semibold">Ders Programı</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% elif user.role == "diger" %}
+    <!-- Diğer Personel Dashboard -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="stats-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="stats-label mb-0">Görevim</h6>
+                        <i class="fas fa-briefcase text-primary fa-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-primary">{{ user.gorev|default:"Belirtilmemiş" }}</h4>
+                    <p class="stats-label">Aktif görev</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="stats-card h-100">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="stats-label mb-0">Bildirimler</h6>
+                        <i class="fas fa-bell text-warning fa-lg"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h2 class="stats-number">0</h2>
+                    <p class="stats-label">Bekleyen bildirim</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diğer Personel Hızlı Erişim -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="stats-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>
+                        Hızlı Erişim
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 col-6 mb-3">
+                            <a href="#" class="quick-action-btn">
+                                <i class="fas fa-tools"></i>
+                                <div class="fw-semibold">Arıza Bildirimi</div>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <a href="#" class="quick-action-btn">
+                                <i class="fas fa-clipboard-list"></i>
+                                <div class="fw-semibold">Günlük Rapor</div>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <a href="#" class="quick-action-btn">
+                                <i class="fas fa-clock"></i>
+                                <div class="fw-semibold">Vardiya Programı</div>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <a href="{% url 'duyurular:duyuru_listesi' %}" class="quick-action-btn">
+                                <i class="fas fa-bullhorn"></i>
+                                <div class="fw-semibold">Duyurular</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Personel Bilgileri -->
+    <div class="row">
+        <div class="col-12">
+            <div class="stats-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>
+                        Personel Bilgileri
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                <i class="fas fa-user-circle text-primary fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">Ad Soyad</h6>
+                                    <p class="mb-0">{{ user.first_name }} {{ user.last_name }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                <i class="fas fa-briefcase text-success fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">Görev</h6>
+                                    <p class="mb-0">{{ user.gorev|default:"Belirtilmemiş" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                <i class="fas fa-id-card text-info fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">Sigorta No</h6>
+                                    <p class="mb-0">{{ user.sigorta_no|default:"Belirtilmemiş" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                <i class="fas fa-calendar text-warning fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">İşe Başlama</h6>
+                                    <p class="mb-0">{{ user.join_date|date:"d.m.Y"|default:"Belirtilmemiş" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endif %}
+
 {% endblock %}
