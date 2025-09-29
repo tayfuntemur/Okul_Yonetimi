@@ -1,283 +1,480 @@
 {% extends 'base.html' %}
 {% load get_item %}
-{% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="text-primary">📝 Not Girişi</h2>
-                <div class="badge bg-info fs-6">
-                    {{ user.get_full_name }} - {{ user.get_role_display }}
-                </div>
-            </div>
+{% block title %}Not Girişi - Okul Yönetimi{% endblock %}
 
-           
-            <!-- Sınıf ve Ders Seçimi -->
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <form method="get" class="d-flex gap-3">
-                        <input type="hidden" name="sinif_id" value="{{ request.GET.sinif_id }}">
-                        <input type="hidden" name="ders_id" value="{{ request.GET.ders_id }}">
-                        <input type="hidden" name="sube" value="{{ request.GET.sube }}">
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="welcome-card text-center mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1">
+                    <i class="fas fa-pencil-alt me-2"></i>
+                    Not Girişi
+                </h2>
+                <p class="mb-0 opacity-75">Öğrenci notlarını girin ve güncelleyin</p>
+            </div>
+            <div class="user-info">
+                <i class="fas fa-user-circle me-2"></i>
+                {{ user.get_full_name }} - {{ user.get_role_display }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sınıf ve Ders Seçimi -->
+    <div class="stats-card mb-4">
+        <div class="card-header bg-gradient-orange text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-filter me-2"></i>
+                Sınıf ve Ders Seçimi
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="get">
+                <input type="hidden" name="sinif_id" value="{{ request.GET.sinif_id }}">
+                <input type="hidden" name="ders_id" value="{{ request.GET.ders_id }}">
+                <input type="hidden" name="sube" value="{{ request.GET.sube }}">
+                
+                <div class="row g-3">
+                    <div class="col-lg-4 col-md-6">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-graduation-cap me-2 text-orange"></i>
+                            Sınıf
+                        </label>
+                        <select name="sinif_id" class="form-control" onchange="this.form.submit()">
+                            <option value="">-- Sınıf Seçin --</option>
+                            {% for sinif in siniflar %}
+                                <option value="{{ sinif.id }}" 
+                                        {% if sinif.id|stringformat:"s" == request.GET.sinif_id %}selected{% endif %}>
+                                    {% if sinif.sinif_seviye == 'anasinif' %}
+                                        Ana Sınıfı
+                                    {% else %}
+                                        {{ sinif.sinif_seviye }}. Sınıf
+                                    {% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    {% if selected_sinif %}
+                        {% if user.role == 'ogretmen' and ogretmen_atama and not ogretmen_atama.sube or user.role in 'admin,mudur,mudur_yardimcisi' %}
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-door-open me-2 text-orange"></i>
+                                Şube
+                            </label>
+                            <select name="sube" class="form-control" onchange="this.form.submit()">
+                                <option value="">-- Şube Seçin --</option>
+                                <option value="A" {% if request.GET.sube == 'A' %}selected{% endif %}>A Şubesi</option>
+                                <option value="B" {% if request.GET.sube == 'B' %}selected{% endif %}>B Şubesi</option>
+                                <option value="C" {% if request.GET.sube == 'C' %}selected{% endif %}>C Şubesi</option>
+                                <option value="D" {% if request.GET.sube == 'D' %}selected{% endif %}>D Şubesi</option>
+                            </select>
+                        </div>
+                        {% endif %}
                         
-                        <div class="flex-fill">
-                            <label class="form-label">Sınıf Seçin:</label>
-                            <select name="sinif_id" class="form-select" onchange="this.form.submit()">
-                                <option value="">-- Sınıf Seçin --</option>
-                                {% for sinif in siniflar %}
-                                    <option value="{{ sinif.id }}" 
-                                            {% if sinif.id|stringformat:"s" == request.GET.sinif_id %}selected{% endif %}>
-                                        {% if sinif.sinif_seviye == 'anasinif' %}
-                                            Ana Sınıfı
-                                        {% else %}
-                                            {{ sinif.sinif_seviye }}. Sınıf
-                                        {% endif %}
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-book me-2 text-orange"></i>
+                                Ders
+                            </label>
+                            <select name="ders_id" class="form-control" onchange="this.form.submit()">
+                                <option value="">-- Ders Seçin --</option>
+                                {% for ders in available_dersler %}
+                                    <option value="{{ ders.id }}" 
+                                            {% if ders.id|stringformat:"s" == request.GET.ders_id %}selected{% endif %}>
+                                        {{ ders.ad }}
                                     </option>
                                 {% endfor %}
                             </select>
                         </div>
-                        
-                        {% if selected_sinif %}
-                            <!-- Şube Seçimi (Branş öğretmenleri ve admin için) -->
-                            {% if user.role == 'ogretmen' and ogretmen_atama and not ogretmen_atama.sube or user.role in 'admin,mudur,mudur_yardimcisi' %}
-                            <div class="flex-fill">
-                                <label class="form-label">Şube Seçin:</label>
-                                <select name="sube" class="form-select" onchange="this.form.submit()">
-                                    <option value="">-- Şube Seçin --</option>
-                                    <option value="A" {% if request.GET.sube == 'A' %}selected{% endif %}>A Şubesi</option>
-                                    <option value="B" {% if request.GET.sube == 'B' %}selected{% endif %}>B Şubesi</option>
-                                    <option value="C" {% if request.GET.sube == 'C' %}selected{% endif %}>C Şubesi</option>
-                                    <option value="D" {% if request.GET.sube == 'D' %}selected{% endif %}>D Şubesi</option>
-                                </select>
-                            </div>
-                            {% endif %}
-                            
-                            <div class="flex-fill">
-                                <label class="form-label">Ders Seçin:</label>
-                                <select name="ders_id" class="form-select" onchange="this.form.submit()">
-                                    <option value="">-- Ders Seçin --</option>
-                                    {% for ders in available_dersler %}
-                                        <option value="{{ ders.id }}" 
-                                                {% if ders.id|stringformat:"s" == request.GET.ders_id %}selected{% endif %}>
-                                            {{ ders.ad }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        {% endif %}
-                    </form>
+                    {% endif %}
                 </div>
-    
-    {% if selected_sinif and selected_ders %}
-    <div class="col-md-12 mt-3">
-        <div class="alert alert-info mb-0">
-            <strong>Seçili:</strong> 
-            {% if selected_sinif.sinif_seviye == 'anasinif' %}
-                Ana Sınıfı
-            {% else %}
-                {{ selected_sinif.sinif_seviye }}. Sınıf
-            {% endif %}
-            {% if selected_sube %}{{ selected_sube }}{% endif %}
-            - {{ selected_ders.ad }}
-            {% if ogrenciler %}
-                <br><small>{{ ogrenciler.count }} öğrenci</small>
-            {% endif %}
-        </div>
-    </div>
-    {% endif %}
-</div>
-                
-                {% if selected_sinif and selected_ders %}
-                <div class="col-md-6 text-end">
-                    <div class="alert alert-info mb-0">
+            </form>
+
+            {% if selected_sinif and selected_ders %}
+            <div class="alert alert-info border-0 rounded-15 mt-3 mb-0">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-info-circle text-info fa-2x me-3"></i>
+                    <div>
                         <strong>Seçili:</strong> 
                         {% if selected_sinif.sinif_seviye == 'anasinif' %}
                             Ana Sınıfı
                         {% else %}
                             {{ selected_sinif.sinif_seviye }}. Sınıf
                         {% endif %}
+                        {% if selected_sube %} {{ selected_sube }}{% endif %}
                         - {{ selected_ders.ad }}
-                        <br>
-                        <small>{{ ogrenciler.count }} öğrenci</small>
+                        {% if ogrenciler %}
+                            <br><small>{{ ogrenciler.count }} öğrenci listelendi</small>
+                        {% endif %}
                     </div>
                 </div>
-                {% endif %}
             </div>
-
-            {% if ogrenciler %}
-                <!-- Not Girişi Tablosu -->
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">
-                            {% if selected_sinif.sinif_seviye == 'anasinif' %}
-                                Ana Sınıfı
-                            {% else %}
-                                {{ selected_sinif.sinif_seviye }}. Sınıf
-                            {% endif %}
-                            - {{ selected_ders.ad }} Dersi Not Girişi
-                        </h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <form method="post">
-                            {% csrf_token %}
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-hover align-middle text-center mb-0">
-                                    <thead class="table-dark">
-                                        <tr>
-                                            <th rowspan="2" class="align-middle">Öğrenci</th>
-                                            <th colspan="4" class="text-center text-warning">🥇 1. Dönem</th>
-                                            <th colspan="4" class="text-center text-info">🥈 2. Dönem</th>
-                                            <th rowspan="2" class="align-middle text-success">🏆 Yıl Sonu</th>
-                                        </tr>
-                                        <tr>
-                                            <th>Test</th>
-                                            <th>Yazılı</th>
-                                            <th>Sözlü</th>
-                                            <th class="text-warning">Ort.</th>
-                                            <th>Test</th>
-                                            <th>Yazılı</th>
-                                            <th>Sözlü</th>
-                                            <th class="text-info">Ort.</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for ogrenci in ogrenciler %}
-                                            {% with note=notlar_dict|get_item:ogrenci.id %}
-                                                <tr>
-                                                    <td class="text-start">
-                                                        <strong>{{ ogrenci.ad_soyad }}</strong><br>
-                                                        <small class="text-muted">{{ ogrenci.sinif_info }} - {{ ogrenci.okul_numarasi }}</small>
-                                                    </td>
-                                                    
-                                                    <!-- 1. Dönem -->
-                                                    <td>
-                                                        <input type="number" 
-                                                               name="donem1_test_{{ ogrenci.id }}" 
-                                                               class="form-control form-control-sm" 
-                                                               step="0.01" min="0" max="100"
-                                                               value="{{ note.donem1_test|default_if_none:'' }}">
-                                                    </td>
-                                                    <td>
-                                                        <input type="number" 
-                                                               name="donem1_yazili_{{ ogrenci.id }}" 
-                                                               class="form-control form-control-sm" 
-                                                               step="0.01" min="0" max="100"
-                                                               value="{{ note.donem1_yazili|default_if_none:'' }}">
-                                                    </td>
-                                                    <td>
-                                                        <input type="number" 
-                                                               name="donem1_sozlu_{{ ogrenci.id }}" 
-                                                               class="form-control form-control-sm" 
-                                                               step="0.01" min="0" max="100"
-                                                               value="{{ note.donem1_sozlu|default_if_none:'' }}">
-                                                    </td>
-                                                    <td class="bg-light">
-                                                        {% if note.ortalama1 %}
-                                                            <strong class="text-warning">{{ note.ortalama1|floatformat:1 }}</strong>
-                                                        {% else %}
-                                                            <span class="text-muted">-</span>
-                                                        {% endif %}
-                                                    </td>
-                                                    
-                                                    <!-- 2. Dönem -->
-                                                    <td>
-                                                        <input type="number" 
-                                                               name="donem2_test_{{ ogrenci.id }}" 
-                                                               class="form-control form-control-sm" 
-                                                               step="0.01" min="0" max="100"
-                                                               value="{{ note.donem2_test|default_if_none:'' }}">
-                                                    </td>
-                                                    <td>
-                                                        <input type="number" 
-                                                               name="donem2_yazili_{{ ogrenci.id }}" 
-                                                               class="form-control form-control-sm" 
-                                                               step="0.01" min="0" max="100"
-                                                               value="{{ note.donem2_yazili|default_if_none:'' }}">
-                                                    </td>
-                                                    <td>
-                                                        <input type="number" 
-                                                               name="donem2_sozlu_{{ ogrenci.id }}" 
-                                                               class="form-control form-control-sm" 
-                                                               step="0.01" min="0" max="100"
-                                                               value="{{ note.donem2_sozlu|default_if_none:'' }}">
-                                                    </td>
-                                                    <td class="bg-light">
-                                                        {% if note.ortalama2 %}
-                                                            <strong class="text-info">{{ note.ortalama2|floatformat:1 }}</strong>
-                                                        {% else %}
-                                                            <span class="text-muted">-</span>
-                                                        {% endif %}
-                                                    </td>
-                                                    
-                                                    <!-- Yıl Sonu -->
-                                                    <td class="bg-light">
-                                                        {% if note.yil_sonu_ortalama %}
-                                                            {% if note.yil_sonu_ortalama >= 85 %}
-                                                                <strong class="text-success">{{ note.yil_sonu_ortalama|floatformat:1 }}</strong>
-                                                            {% elif note.yil_sonu_ortalama >= 70 %}
-                                                                <strong class="text-primary">{{ note.yil_sonu_ortalama|floatformat:1 }}</strong>
-                                                            {% elif note.yil_sonu_ortalama >= 45 %}
-                                                                <strong class="text-warning">{{ note.yil_sonu_ortalama|floatformat:1 }}</strong>
-                                                            {% else %}
-                                                                <strong class="text-danger">{{ note.yil_sonu_ortalama|floatformat:1 }}</strong>
-                                                            {% endif %}
-                                                        {% else %}
-                                                            <span class="text-muted">-</span>
-                                                        {% endif %}
-                                                    </td>
-                                                </tr>
-                                            {% endwith %}
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            
-                            <div class="card-footer text-end">
-                                <button type="submit" class="btn btn-success btn-lg">
-                                    💾 Notları Kaydet
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                
-            {% elif selected_sinif and selected_ders %}
-                <!-- Öğrenci Yok Mesajı -->
-                <div class="alert alert-warning text-center">
-                    <h5>Bu sınıfta öğrenci bulunamadı</h5>
-                    <p>Seçilen sınıfa henüz öğrenci kaydedilmemiş.</p>
-                </div>
-                
-            {% elif selected_sinif %}
-                <!-- Ders Seçimi Bekleniyor -->
-                <div class="alert alert-info text-center">
-                    <h5>Ders Seçin</h5>
-                    <p>Not girişi yapmak için yukarıdan bir ders seçin.</p>
-                </div>
-                
-            {% else %}
-                <!-- Başlangıç Durumu -->
-                <div class="text-center py-5">
-                    <div class="card border-0">
-                        <div class="card-body">
-                            <div class="mb-4">
-                                <i class="fas fa-graduation-cap fa-5x text-muted"></i>
-                            </div>
-                            <h4 class="text-muted">Not Girişine Hoş Geldiniz</h4>
-                            <p class="text-muted">Başlamak için yukarıdan bir sınıf seçin.</p>
-                            
-                            {% if user.role == 'ogretmen' %}
-                                <div class="alert alert-info mt-3">
-                                    <strong>Öğretmen Yetkileri:</strong><br>
-                                    Sadece atandığınız sınıf ve dersleri görürsünüz.
-                                </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
             {% endif %}
-            
         </div>
     </div>
+
+    {% if ogrenciler %}
+        <!-- Not Girişi Tablosu -->
+        <div class="stats-card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-table me-2"></i>
+                    {% if selected_sinif.sinif_seviye == 'anasinif' %}
+                        Ana Sınıfı
+                    {% else %}
+                        {{ selected_sinif.sinif_seviye }}. Sınıf
+                    {% endif %}
+                    {% if selected_sube %}{{ selected_sube }}{% endif %}
+                    - {{ selected_ders.ad }} Dersi
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <form method="post" id="gradeForm">
+                    {% csrf_token %}
+                    <div class="table-responsive">
+                        <table class="table grade-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="student-column">Öğrenci</th>
+                                    <th colspan="4" class="period-header period-1">
+                                        <i class="fas fa-leaf me-2"></i>1. Dönem
+                                    </th>
+                                    <th colspan="4" class="period-header period-2">
+                                        <i class="fas fa-sun me-2"></i>2. Dönem
+                                    </th>
+                                    <th rowspan="2" class="final-column">
+                                        <i class="fas fa-trophy me-2"></i>Yıl Sonu
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th class="grade-type">Test</th>
+                                    <th class="grade-type">Yazılı</th>
+                                    <th class="grade-type">Sözlü</th>
+                                    <th class="average-column">Ort.</th>
+                                    <th class="grade-type">Test</th>
+                                    <th class="grade-type">Yazılı</th>
+                                    <th class="grade-type">Sözlü</th>
+                                    <th class="average-column">Ort.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ogrenci in ogrenciler %}
+                                    {% with note=notlar_dict|get_item:ogrenci.id %}
+                                        <tr class="grade-row">
+                                            <td class="student-cell">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="small-avatar me-2">
+                                                        {{ ogrenci.ad_soyad|slice:":2"|upper }}
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-semibold">{{ ogrenci.ad_soyad }}</div>
+                                                        <small class="text-muted">No: {{ ogrenci.okul_numarasi }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            
+                                            <!-- 1. Dönem -->
+                                            <td>
+                                                <input type="number" 
+                                                       name="donem1_test_{{ ogrenci.id }}" 
+                                                       class="form-control form-control-sm grade-input" 
+                                                       step="0.01" min="0" max="100"
+                                                       value="{{ note.donem1_test|default_if_none:'' }}"
+                                                       placeholder="0-100">
+                                            </td>
+                                            <td>
+                                                <input type="number" 
+                                                       name="donem1_yazili_{{ ogrenci.id }}" 
+                                                       class="form-control form-control-sm grade-input" 
+                                                       step="0.01" min="0" max="100"
+                                                       value="{{ note.donem1_yazili|default_if_none:'' }}"
+                                                       placeholder="0-100">
+                                            </td>
+                                            <td>
+                                                <input type="number" 
+                                                       name="donem1_sozlu_{{ ogrenci.id }}" 
+                                                       class="form-control form-control-sm grade-input" 
+                                                       step="0.01" min="0" max="100"
+                                                       value="{{ note.donem1_sozlu|default_if_none:'' }}"
+                                                       placeholder="0-100">
+                                            </td>
+                                            <td class="average-cell">
+                                                {% if note.ortalama1 %}
+                                                    <span class="average-badge">{{ note.ortalama1|floatformat:1 }}</span>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                            
+                                            <!-- 2. Dönem -->
+                                            <td>
+                                                <input type="number" 
+                                                       name="donem2_test_{{ ogrenci.id }}" 
+                                                       class="form-control form-control-sm grade-input" 
+                                                       step="0.01" min="0" max="100"
+                                                       value="{{ note.donem2_test|default_if_none:'' }}"
+                                                       placeholder="0-100">
+                                            </td>
+                                            <td>
+                                                <input type="number" 
+                                                       name="donem2_yazili_{{ ogrenci.id }}" 
+                                                       class="form-control form-control-sm grade-input" 
+                                                       step="0.01" min="0" max="100"
+                                                       value="{{ note.donem2_yazili|default_if_none:'' }}"
+                                                       placeholder="0-100">
+                                            </td>
+                                            <td>
+                                                <input type="number" 
+                                                       name="donem2_sozlu_{{ ogrenci.id }}" 
+                                                       class="form-control form-control-sm grade-input" 
+                                                       step="0.01" min="0" max="100"
+                                                       value="{{ note.donem2_sozlu|default_if_none:'' }}"
+                                                       placeholder="0-100">
+                                            </td>
+                                            <td class="average-cell">
+                                                {% if note.ortalama2 %}
+                                                    <span class="average-badge">{{ note.ortalama2|floatformat:1 }}</span>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                            
+                                            <!-- Yıl Sonu -->
+                                            <td class="final-cell">
+                                                {% if note.yil_sonu_ortalama %}
+                                                    {% if note.yil_sonu_ortalama >= 85 %}
+                                                        <span class="final-badge grade-excellent">{{ note.yil_sonu_ortalama|floatformat:1 }}</span>
+                                                    {% elif note.yil_sonu_ortalama >= 70 %}
+                                                        <span class="final-badge grade-good">{{ note.yil_sonu_ortalama|floatformat:1 }}</span>
+                                                    {% elif note.yil_sonu_ortalama >= 45 %}
+                                                        <span class="final-badge grade-pass">{{ note.yil_sonu_ortalama|floatformat:1 }}</span>
+                                                    {% else %}
+                                                        <span class="final-badge grade-fail">{{ note.yil_sonu_ortalama|floatformat:1 }}</span>
+                                                    {% endif %}
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endwith %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="card-footer bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Değişiklikleri kaydetmeyi unutmayın
+                                </small>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-save me-2"></i>
+                                Notları Kaydet
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+    {% elif selected_sinif and selected_ders %}
+        <!-- Öğrenci Yok -->
+        <div class="stats-card border-warning">
+            <div class="card-body text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-user-slash fa-4x text-warning"></i>
+                </div>
+                <h5 class="text-warning">Öğrenci Bulunamadı</h5>
+                <p class="text-muted">Bu sınıfta henüz öğrenci kaydedilmemiş.</p>
+            </div>
+        </div>
+        
+    {% elif selected_sinif %}
+        <!-- Ders Seçimi Bekleniyor -->
+        <div class="stats-card border-info">
+            <div class="card-body text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-book fa-4x text-info"></i>
+                </div>
+                <h5 class="text-info">Ders Seçin</h5>
+                <p class="text-muted">Not girişi yapmak için yukarıdan bir ders seçin.</p>
+            </div>
+        </div>
+        
+    {% else %}
+        <!-- Başlangıç Durumu -->
+        <div class="stats-card">
+            <div class="card-body text-center py-5">
+                <div class="mb-4">
+                    <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center" 
+                         style="width: 100px; height: 100px;">
+                        <i class="fas fa-graduation-cap fa-4x text-primary"></i>
+                    </div>
+                </div>
+                <h4 class="text-primary mb-3">Not Girişine Hoş Geldiniz</h4>
+                <p class="text-muted mb-4">Başlamak için yukarıdan bir sınıf seçin.</p>
+                
+                {% if user.role == 'ogretmen' %}
+                    <div class="alert alert-info border-0">
+                        <strong>Öğretmen Yetkileri:</strong><br>
+                        Sadece atandığınız sınıf ve dersleri görürsünüz.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
 </div>
+
+<style>
+/* Grade Table Specific Styles */
+.grade-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.grade-table thead tr:first-child {
+    background: linear-gradient(135deg, var(--dark-bg) 0%, var(--sidebar-bg) 100%);
+}
+
+.grade-table thead tr:last-child {
+    background: #495057;
+}
+
+.grade-table thead th {
+    color: white;
+    padding: 0.75rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.period-header {
+    text-align: center !important;
+}
+
+.period-1 {
+    background: linear-gradient(135deg, #ffc107, #ff9800) !important;
+}
+
+.period-2 {
+    background: linear-gradient(135deg, #17a2b8, #007bff) !important;
+}
+
+.student-column {
+    min-width: 200px;
+    position: sticky;
+    left: 0;
+    background: var(--dark-bg);
+    z-index: 10;
+}
+
+.final-column {
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+}
+
+.grade-type,
+.average-column {
+    min-width: 80px;
+    text-align: center;
+}
+
+.student-cell {
+    position: sticky;
+    left: 0;
+    background: white;
+    z-index: 5;
+    border-right: 2px solid var(--border-color);
+}
+
+.grade-row:hover .student-cell {
+    background: rgba(255, 107, 53, 0.05);
+}
+
+.grade-input {
+    width: 80px;
+    text-align: center;
+    border: 2px solid #e9ecef;
+    transition: var(--transition);
+}
+
+.grade-input:focus {
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.15);
+}
+
+.average-cell,
+.final-cell {
+    background: #f8f9fa;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.average-badge,
+.final-badge {
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: inline-block;
+}
+
+.average-badge {
+    background: var(--primary-orange);
+    color: white;
+}
+
+.grade-excellent {
+    background: #28a745;
+    color: white;
+}
+
+.grade-good {
+    background: #007bff;
+    color: white;
+}
+
+.grade-pass {
+    background: #ffc107;
+    color: #000;
+}
+
+.grade-fail {
+    background: #dc3545;
+    color: white;
+}
+
+.grade-row {
+    transition: var(--transition);
+}
+
+.grade-row:hover {
+    background: rgba(255, 107, 53, 0.02);
+}
+</style>
+
+<script>
+// Form validasyonu
+document.getElementById('gradeForm')?.addEventListener('submit', function(e) {
+    const inputs = this.querySelectorAll('.grade-input');
+    let hasInvalidGrade = false;
+    
+    inputs.forEach(input => {
+        if(input.value && (parseFloat(input.value) < 0 || parseFloat(input.value) > 100)) {
+            hasInvalidGrade = true;
+            input.classList.add('is-invalid');
+        } else {
+            input.classList.remove('is-invalid');
+        }
+    });
+    
+    if(hasInvalidGrade) {
+        e.preventDefault();
+        alert('Lütfen 0-100 arasında notlar girin!');
+    }
+});
+</script>
 {% endblock %}

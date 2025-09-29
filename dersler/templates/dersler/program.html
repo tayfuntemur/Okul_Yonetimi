@@ -1,65 +1,329 @@
 {% extends 'base.html' %}
 {% load program_filters %}
+{% block title %}Haftalık Ders Programı - Okul Yönetimi{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
-    <h3 class="text-center mb-4">📅 Haftalık Ders Programı</h3>
-    
-    {% if user.role == 'ogrenci' %}
-        <h5 class="text-center text-muted mb-4">{{ user.sinif_seviye }}{{ user.sube }} Sınıfı</h5>
-    {% endif %}
-    
-    <div class="table-responsive">
-        <table class="table table-bordered text-center">
-            <thead class="table-dark">
-                <tr>
-                    <th style="width: 120px;">Saat</th>
-                    {% for gun in gunler %}
-                        <th>{{ gun|title }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for saat in saatler %}
-                    <tr>
-                        <td class="align-middle"><strong>{{ saat }}. Ders</strong><br>
-                            <small>
-                                {% if saat == '1' %}08:00-08:45
-                                {% elif saat == '2' %}09:00-09:45
-                                {% elif saat == '3' %}10:00-10:45
-                                {% elif saat == '4' %}11:00-11:45
-                                {% elif saat == '5' %}13:00-13:45
-                                {% elif saat == '6' %}14:00-14:45
-                                {% endif %}
-                            </small>
-                        </td>
-                        {% for gun in gunler %}
-                            {% with key=gun|add:"_"|add:saat %}
-                                {% with prog=program_data|get_item:key %}
-                                    {% if prog %}
-                                        {% if user.role == 'ogretmen' %}
-                                            <td class="text-white {{ prog.0.ders.renk }}" style="vertical-align: middle;">
-                                                <strong>{{ prog.0.ders.ad }}</strong><br>
-                                                <small>{{ prog.0.sinif_seviye }}{{ prog.0.sube }}</small>
-                                            </td>
-                                        {% else %}
-                                            <td class="text-white {{ prog.ders.renk }}" style="vertical-align: middle;">
-                                                <strong>{{ prog.ders.ad }}</strong>
-                                                {% if prog.ogretmen %}
-                                                    <br><small>{{ prog.ogretmen.get_full_name }}</small>
-                                                {% endif %}
-                                            </td>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="welcome-card text-center mb-4">
+        <h2 class="mb-1">
+            <i class="fas fa-calendar-week me-2"></i>
+            Haftalık Ders Programı
+        </h2>
+        <p class="mb-0 opacity-75">
+            {% if user.role == 'ogrenci' %}
+                {{ user.sinif_seviye }}{{ user.sube }} Sınıfı Programı
+            {% elif user.role == 'ogretmen' %}
+                Öğretmen Ders Programı
+            {% else %}
+                Okul Ders Programı
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Ders Programı Tablosu -->
+    <div class="stats-card">
+        <div class="card-header bg-gradient-orange text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-table me-2"></i>
+                    Haftalık Program
+                </h5>
+                <button class="btn btn-light btn-sm" onclick="printSchedule()">
+                    <i class="fas fa-print me-1"></i>
+                    Yazdır
+                </button>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table schedule-table mb-0">
+                    <thead>
+                        <tr>
+                            <th class="time-column">
+                                <i class="fas fa-clock me-2"></i>
+                                Saat
+                            </th>
+                            {% for gun in gunler %}
+                                <th class="day-column">
+                                    <i class="fas fa-calendar-day me-2"></i>
+                                    {{ gun|title }}
+                                </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for saat in saatler %}
+                            <tr>
+                                <td class="time-cell">
+                                    <div class="lesson-number">{{ saat }}. Ders</div>
+                                    <div class="time-range">
+                                        {% if saat == '1' %}08:00-08:45
+                                        {% elif saat == '2' %}09:00-09:45
+                                        {% elif saat == '3' %}10:00-10:45
+                                        {% elif saat == '4' %}11:00-11:45
+                                        {% elif saat == '5' %}13:00-13:45
+                                        {% elif saat == '6' %}14:00-14:45
                                         {% endif %}
-                                    {% else %}
-                                        <td class="table-light">-</td>
-                                    {% endif %}
-                                {% endwith %}
-                            {% endwith %}
+                                    </div>
+                                </td>
+                                {% for gun in gunler %}
+                                    {% with key=gun|add:"_"|add:saat %}
+                                        {% with prog=program_data|get_item:key %}
+                                            {% if prog %}
+                                                {% if user.role == 'ogretmen' %}
+                                                    <td class="lesson-cell">
+                                                        <div class="lesson-content">
+                                                            <div class="lesson-icon">
+                                                                <i class="fas fa-book"></i>
+                                                            </div>
+                                                            <div class="lesson-name">{{ prog.0.ders.ad }}</div>
+                                                            <div class="lesson-class">
+                                                                <i class="fas fa-users me-1"></i>
+                                                                {{ prog.0.sinif_seviye }}{{ prog.0.sube }}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                {% else %}
+                                                    <td class="lesson-cell">
+                                                        <div class="lesson-content">
+                                                            <div class="lesson-icon">
+                                                                <i class="fas fa-book"></i>
+                                                            </div>
+                                                            <div class="lesson-name">{{ prog.ders.ad }}</div>
+                                                            {% if prog.ogretmen %}
+                                                                <div class="lesson-teacher">
+                                                                    <i class="fas fa-user-tie me-1"></i>
+                                                                    {{ prog.ogretmen.get_full_name }}
+                                                                </div>
+                                                            {% endif %}
+                                                        </div>
+                                                    </td>
+                                                {% endif %}
+                                            {% else %}
+                                                <td class="empty-cell">
+                                                    <div class="empty-content">
+                                                        <i class="fas fa-minus text-muted"></i>
+                                                    </div>
+                                                </td>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endwith %}
+                                {% endfor %}
+                            </tr>
                         {% endfor %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Tablo Alt Bilgi -->
+        <div class="card-footer bg-light">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Haftalık ders programınız gösteriliyor
+                    </small>
+                </div>
+                <div class="col-md-6 text-end">
+                    <small class="text-muted">
+                        <i class="fas fa-calendar-alt me-1"></i>
+                        Güncel: {{ today|date:"d.m.Y" }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bilgilendirme -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="info-box">
+                <div class="info-icon bg-primary bg-opacity-10">
+                    <i class="fas fa-clock text-primary"></i>
+                </div>
+                <h6>Ders Saatleri</h6>
+                <p class="text-muted small mb-0">Her ders 45 dakika sürmektedir</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="info-box">
+                <div class="info-icon bg-success bg-opacity-10">
+                    <i class="fas fa-utensils text-success"></i>
+                </div>
+                <h6>Öğle Arası</h6>
+                <p class="text-muted small mb-0">11:45 - 13:00 arası öğle yemeği</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="info-box">
+                <div class="info-icon bg-warning bg-opacity-10">
+                    <i class="fas fa-bell text-warning"></i>
+                </div>
+                <h6>Teneffüs</h6>
+                <p class="text-muted small mb-0">Her ders arası 15 dakika</p>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+function printSchedule() {
+    window.print();
+}
+</script>
+
+<style>
+/* Schedule Table Specific Styles */
+.schedule-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.schedule-table thead tr {
+    background: linear-gradient(135deg, var(--dark-bg) 0%, var(--sidebar-bg) 100%);
+}
+
+.schedule-table thead th {
+    color: white;
+    padding: 1rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.time-column {
+    width: 120px;
+    min-width: 120px;
+}
+
+.day-column {
+    width: calc((100% - 120px) / 5);
+    text-align: center;
+}
+
+.time-cell {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    text-align: center;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.lesson-number {
+    font-weight: 700;
+    color: var(--dark-bg);
+    font-size: 1rem;
+}
+
+.time-range {
+    color: var(--text-light);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.lesson-cell {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+    position: relative;
+    vertical-align: middle;
+    transition: var(--transition);
+}
+
+.lesson-cell:hover {
+    transform: scale(1.02);
+    z-index: 10;
+    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+}
+
+.lesson-content {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    height: 100%;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.lesson-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.lesson-name {
+    font-weight: 700;
+    color: var(--dark-bg);
+    font-size: 0.95rem;
+}
+
+.lesson-class,
+.lesson-teacher {
+    color: var(--text-light);
+    font-size: 0.8rem;
+}
+
+.empty-cell {
+    background: #f8f9fa;
+    border: 1px solid var(--border-color);
+    vertical-align: middle;
+    text-align: center;
+    padding: 1rem;
+}
+
+.empty-content {
+    opacity: 0.3;
+}
+
+.info-box {
+    text-align: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+}
+
+.info-box:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-medium);
+}
+
+.info-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.5rem;
+}
+
+/* Print Styles */
+@media print {
+    .welcome-card,
+    .card-footer,
+    .info-box,
+    .btn {
+        display: none !important;
+    }
+    
+    .schedule-table {
+        font-size: 0.8rem;
+    }
+}
+</style>
 {% endblock %}

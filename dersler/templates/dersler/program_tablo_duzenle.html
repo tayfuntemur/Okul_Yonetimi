@@ -1,110 +1,304 @@
 {% extends 'base.html' %}
 {% load program_filters %}
+{% block title %}Ders Programı Düzenle - Okul Yönetimi{% endblock %}
 
 {% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="welcome-card text-center mb-4">
+        <h2 class="mb-1">
+            <i class="fas fa-calendar-edit me-2"></i>
+            Ders Programı Düzenle
+        </h2>
+        <p class="mb-0 opacity-75">Sınıf programını oluşturun ve güncelleyin</p>
+    </div>
 
-
-<div class="container-fluid mt-4">
-    <h3>📅 Ders Programı Düzenle</h3>
-    
     <!-- Sınıf Seçimi -->
-    <form method="get" class="mb-4">
-        <div class="row">
-            <div class="col-md-3">
-                <select name="sinif_seviye" class="form-control" required>
-                    <option value="">Sınıf Seç</option>
-                    <option value="1" {% if sinif_seviye == '1' %}selected{% endif %}>1. Sınıf</option>
-                    <option value="2" {% if sinif_seviye == '2' %}selected{% endif %}>2. Sınıf</option>
-                    <option value="3" {% if sinif_seviye == '3' %}selected{% endif %}>3. Sınıf</option>
-                    <option value="4" {% if sinif_seviye == '4' %}selected{% endif %}>4. Sınıf</option>
-                    <option value="5" {% if sinif_seviye == '5' %}selected{% endif %}>5. Sınıf</option>
-                    <option value="6" {% if sinif_seviye == '6' %}selected{% endif %}>6. Sınıf</option>
-                    <option value="7" {% if sinif_seviye == '7' %}selected{% endif %}>7. Sınıf</option>
-                    <option value="8" {% if sinif_seviye == '8' %}selected{% endif %}>8. Sınıf</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <select name="sube" class="form-control" required>
-                    <option value="">Şube Seç</option>
-                    <option value="A" {% if sube == 'A' %}selected{% endif %}>A</option>
-                    <option value="B" {% if sube == 'B' %}selected{% endif %}>B</option>
-                    <option value="C" {% if sube == 'C' %}selected{% endif %}>C</option>
-                    <option value="D" {% if sube == 'D' %}selected{% endif %}>D</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <button type="submit" class="btn btn-primary">Göster</button>
-            </div>
+    <div class="stats-card mb-4">
+        <div class="card-header bg-gradient-orange text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-filter me-2"></i>
+                Sınıf Seçimi
+            </h5>
         </div>
-    </form>
+        <div class="card-body">
+            <form method="get">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-graduation-cap me-2 text-orange"></i>
+                            Sınıf Seviyesi
+                        </label>
+                        <select name="sinif_seviye" class="form-control" required>
+                            <option value="">-- Sınıf Seçin --</option>
+                            <option value="1" {% if sinif_seviye == '1' %}selected{% endif %}>1. Sınıf</option>
+                            <option value="2" {% if sinif_seviye == '2' %}selected{% endif %}>2. Sınıf</option>
+                            <option value="3" {% if sinif_seviye == '3' %}selected{% endif %}>3. Sınıf</option>
+                            <option value="4" {% if sinif_seviye == '4' %}selected{% endif %}>4. Sınıf</option>
+                            <option value="5" {% if sinif_seviye == '5' %}selected{% endif %}>5. Sınıf</option>
+                            <option value="6" {% if sinif_seviye == '6' %}selected{% endif %}>6. Sınıf</option>
+                            <option value="7" {% if sinif_seviye == '7' %}selected{% endif %}>7. Sınıf</option>
+                            <option value="8" {% if sinif_seviye == '8' %}selected{% endif %}>8. Sınıf</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-door-open me-2 text-orange"></i>
+                            Şube
+                        </label>
+                        <select name="sube" class="form-control" required>
+                            <option value="">-- Şube Seçin --</option>
+                            <option value="A" {% if sube == 'A' %}selected{% endif %}>A Şubesi</option>
+                            <option value="B" {% if sube == 'B' %}selected{% endif %}>B Şubesi</option>
+                            <option value="C" {% if sube == 'C' %}selected{% endif %}>C Şubesi</option>
+                            <option value="D" {% if sube == 'D' %}selected{% endif %}>D Şubesi</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn-custom-primary w-100">
+                            <i class="fas fa-search me-2"></i>
+                            Programı Göster
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
     {% if sinif_seviye and sube %}
-    <!-- Program Tablosu -->
-    <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="sinif_seviye" value="{{ sinif_seviye }}">
-        <input type="hidden" name="sube" value="{{ sube }}">
-        
-        <div class="table-responsive">
-            <table class="table table-bordered">
-                <thead class="table-dark">
-                    <tr>
-                        <th style="width: 120px;">Saat</th>
-                        {% for gun in gunler %}
-                            <th>{{ gun|title }}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for saat in saatler %}
-                    <tr>
-                        <td><strong>{{ saat }}. Ders</strong><br>
-                            <small>
-                                {% if saat == '1' %}08:00-08:45
-                                {% elif saat == '2' %}09:00-09:45
-                                {% elif saat == '3' %}10:00-10:45
-                                {% elif saat == '4' %}11:00-11:45
-                                {% elif saat == '5' %}13:00-13:45
-                                {% elif saat == '6' %}14:00-14:45
-                                {% endif %}
-                            </small>
-                        </td>
-                        {% for gun in gunler %}
-                            {% with key=gun|add:"_"|add:saat %}
-                                <td>
-                                    <!-- Ders Seçimi -->
-                                    <select name="ders_{{ gun }}_{{ saat }}" class="form-control form-control-sm mb-1">
-                                        <option value="">-</option>
-                                        {% for ders in dersler %}
-                                            <option value="{{ ders.id }}" 
-                                                {% if program_data|get_item:key and program_data|get_item:key|get_item:'ders_id' == ders.id %}selected{% endif %}>
-                                                {{ ders.ad }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-
-                                    <!-- Öğretmen Seçimi -->
-                                    <select name="ogretmen_{{ gun }}_{{ saat }}" class="form-control form-control-sm">
-                                        <option value="">-</option>
-                                        {% for ogretmen in ogretmenler %}
-                                            <option value="{{ ogretmen.id }}"
-                                                {% if program_data|get_item:key and program_data|get_item:key|get_item:'ogretmen_id' == ogretmen.id %}selected{% endif %}>
-                                                {{ ogretmen.get_full_name }} ({{ ogretmen.brans }})
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                </td>
-                            {% endwith %}
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <!-- Bilgilendirme -->
+    <div class="alert alert-info border-0 rounded-15 mb-4">
+        <div class="d-flex align-items-start">
+            <i class="fas fa-info-circle text-info fa-2x me-3 mt-1"></i>
+            <div>
+                <h6 class="alert-heading">Program Düzenleme</h6>
+                <ul class="mb-0 ps-3">
+                    <li>Her hücre için önce dersi, sonra öğretmeni seçin</li>
+                    <li>Boş bırakmak için "-" seçeneğini işaretleyin</li>
+                    <li>Değişiklikleri kaydetmeyi unutmayın</li>
+                </ul>
+            </div>
         </div>
-        
-        <button type="submit" class="btn btn-success btn-lg">💾 Programı Kaydet</button>
-    </form>
+    </div>
+
+    <!-- Program Düzenleme Tablosu -->
+    <div class="stats-card">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-table me-2"></i>
+                    {{ sinif_seviye }}{{ sube }} Sınıfı Programı
+                </h5>
+                <span class="badge bg-light text-dark">Düzenleme Modu</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <form method="post" id="programForm">
+                {% csrf_token %}
+                <input type="hidden" name="sinif_seviye" value="{{ sinif_seviye }}">
+                <input type="hidden" name="sube" value="{{ sube }}">
+                
+                <div class="table-responsive">
+                    <table class="table edit-schedule-table mb-0">
+                        <thead>
+                            <tr>
+                                <th class="time-column">
+                                    <i class="fas fa-clock me-2"></i>
+                                    Saat
+                                </th>
+                                {% for gun in gunler %}
+                                    <th class="day-column">
+                                        <i class="fas fa-calendar-day me-2"></i>
+                                        {{ gun|title }}
+                                    </th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for saat in saatler %}
+                            <tr>
+                                <td class="time-cell">
+                                    <div class="lesson-number">{{ saat }}. Ders</div>
+                                    <div class="time-range">
+                                        {% if saat == '1' %}08:00-08:45
+                                        {% elif saat == '2' %}09:00-09:45
+                                        {% elif saat == '3' %}10:00-10:45
+                                        {% elif saat == '4' %}11:00-11:45
+                                        {% elif saat == '5' %}13:00-13:45
+                                        {% elif saat == '6' %}14:00-14:45
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                {% for gun in gunler %}
+                                    {% with key=gun|add:"_"|add:saat %}
+                                        <td class="edit-cell">
+                                            <div class="edit-cell-content">
+                                                <!-- Ders Seçimi -->
+                                                <div class="mb-2">
+                                                    <label class="form-label small fw-semibold mb-1">
+                                                        <i class="fas fa-book text-orange me-1"></i>
+                                                        Ders
+                                                    </label>
+                                                    <select name="ders_{{ gun }}_{{ saat }}" class="form-control form-control-sm">
+                                                        <option value="">Seçiniz</option>
+                                                        {% for ders in dersler %}
+                                                            <option value="{{ ders.id }}" 
+                                                                {% if program_data|get_item:key and program_data|get_item:key|get_item:'ders_id' == ders.id %}selected{% endif %}>
+                                                                {{ ders.ad }}
+                                                            </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+
+                                                <!-- Öğretmen Seçimi -->
+                                                <div>
+                                                    <label class="form-label small fw-semibold mb-1">
+                                                        <i class="fas fa-user-tie text-orange me-1"></i>
+                                                        Öğretmen
+                                                    </label>
+                                                    <select name="ogretmen_{{ gun }}_{{ saat }}" class="form-control form-control-sm">
+                                                        <option value="">Seçiniz</option>
+                                                        {% for ogretmen in ogretmenler %}
+                                                            <option value="{{ ogretmen.id }}"
+                                                                {% if program_data|get_item:key and program_data|get_item:key|get_item:'ogretmen_id' == ogretmen.id %}selected{% endif %}>
+                                                                {{ ogretmen.get_full_name }}
+                                                            </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    {% endwith %}
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Kaydet Butonu -->
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">
+                                <i class="fas fa-save me-1"></i>
+                                Değişiklikleri kaydetmeyi unutmayın
+                            </small>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check me-2"></i>
+                            Programı Kaydet
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Yardım Kartı -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="info-box">
+                <div class="info-icon bg-primary bg-opacity-10">
+                    <i class="fas fa-lightbulb text-primary"></i>
+                </div>
+                <h6>İpucu</h6>
+                <p class="text-muted small mb-0">Aynı öğretmeni aynı saatte farklı sınıflara atamayın</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="info-box">
+                <div class="info-icon bg-success bg-opacity-10">
+                    <i class="fas fa-check-double text-success"></i>
+                </div>
+                <h6>Kontrol</h6>
+                <p class="text-muted small mb-0">Kaydetmeden önce tüm bilgileri kontrol edin</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="info-box">
+                <div class="info-icon bg-warning bg-opacity-10">
+                    <i class="fas fa-clock text-warning"></i>
+                </div>
+                <h6>Süre</h6>
+                <p class="text-muted small mb-0">Her ders 45 dakika sürmektedir</p>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <!-- Başlangıç Durumu -->
+    <div class="stats-card">
+        <div class="card-body text-center py-5">
+            <div class="mb-4">
+                <div class="rounded-circle bg-primary bg-opacity-10 d-inline-flex align-items-center justify-content-center" 
+                     style="width: 100px; height: 100px;">
+                    <i class="fas fa-hand-pointer fa-4x text-primary"></i>
+                </div>
+            </div>
+            <h4 class="text-primary mb-3">Başlamaya Hazır</h4>
+            <p class="text-muted mb-0">Düzenlemek istediğiniz sınıf ve şubeyi yukarıdan seçin</p>
+        </div>
+    </div>
     {% endif %}
 </div>
 
+<script>
+// Form validasyonu
+document.getElementById('programForm')?.addEventListener('submit', function(e) {
+    let hasChanges = false;
+    const selects = this.querySelectorAll('select[name^="ders_"], select[name^="ogretmen_"]');
+    
+    selects.forEach(select => {
+        if(select.value) {
+            hasChanges = true;
+        }
+    });
+    
+    if(!hasChanges) {
+        if(!confirm('Hiç değişiklik yapmadınız. Yine de kaydetmek istiyor musunuz?')) {
+            e.preventDefault();
+        }
+    }
+});
+</script>
+
+<style>
+/* Edit Schedule Table Specific Styles */
+.edit-schedule-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.edit-schedule-table thead tr {
+    background: linear-gradient(135deg, var(--dark-bg) 0%, var(--sidebar-bg) 100%);
+}
+
+.edit-schedule-table thead th {
+    color: white;
+    padding: 1rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.edit-cell {
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    background: #f8f9fa;
+    vertical-align: top;
+}
+
+.edit-cell-content {
+    background: white;
+    border-radius: 10px;
+    padding: 0.75rem;
+    border: 2px solid transparent;
+    transition: var(--transition);
+}
+
+.edit-cell-content:hover {
+    border-color: var(--primary-orange);
+    box-shadow: 0 3px 10px rgba(255, 107, 53, 0.1);
+}
+</style>
 {% endblock %}

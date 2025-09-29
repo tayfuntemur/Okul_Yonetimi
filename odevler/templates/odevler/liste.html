@@ -1,38 +1,208 @@
 {% extends 'base.html' %}
+{% block title %}Ödevler - Okul Yönetimi{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Ödevler</h2>
-        {% if request.user.role == 'ogretmen' %}
-            <a href="{% url 'odevler:ekle' %}" class="btn btn-primary">Yeni Ödev Ekle</a>
-        {% endif %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="welcome-card text-center mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1">
+                    <i class="fas fa-tasks me-2"></i>
+                    {% if request.user.role == 'ogretmen' %}
+                        Verdiğim Ödevler
+                    {% else %}
+                        Ödevlerim
+                    {% endif %}
+                </h2>
+                <p class="mb-0 opacity-75">
+                    {% if request.user.role == 'ogretmen' %}
+                        Öğrencilere verilen ödev listesi
+                    {% else %}
+                        Yapmanız gereken ödevler
+                    {% endif %}
+                </p>
+            </div>
+            {% if request.user.role == 'ogretmen' %}
+                <a href="{% url 'odevler:ekle' %}" class="btn btn-success">
+                    <i class="fas fa-plus me-1"></i>
+                    Yeni Ödev Ekle
+                </a>
+            {% endif %}
+        </div>
     </div>
 
     {% if odevler %}
+        <!-- Ödevler Listesi -->
         <div class="row">
-           {% for odev in odevler %}
-            <div class="col-md-6 mb-3">
-                <div class="card {{ odev.ders.renk }} text-white">  <!-- Renk eklendi -->
-                    <div class="card-header">
-                        <h5 class="mb-0">{{ odev.ders.ad }} - {{ odev.baslik }}</h5>
+            {% for odev in odevler %}
+                <div class="col-lg-6 mb-4">
+                    <div class="homework-card">
+                        <div class="homework-header">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <span class="badge bg-primary rounded-pill">{{ odev.ders.ad }}</span>
+                                        <span class="badge bg-secondary rounded-pill">
+                                            {{ odev.sinif_seviye }}{{ odev.sube }}
+                                        </span>
+                                    </div>
+                                    <h5 class="homework-title mb-0">{{ odev.baslik }}</h5>
+                                </div>
+                                <div class="homework-status">
+                                    {% now "Y-m-d" as today %}
+                                    {% if odev.son_teslim_tarihi|date:"Y-m-d" < today %}
+                                        <span class="status-badge status-overdue">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                        </span>
+                                    {% elif odev.son_teslim_tarihi|date:"Y-m-d" == today %}
+                                        <span class="status-badge status-today">
+                                            <i class="fas fa-clock"></i>
+                                        </span>
+                                    {% else %}
+                                        <span class="status-badge status-active">
+                                            <i class="fas fa-check-circle"></i>
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="homework-body">
+                            <div class="homework-description">
+                                <i class="fas fa-align-left text-muted me-2"></i>
+                                <span>{{ odev.aciklama }}</span>
+                            </div>
+                            
+                            <div class="homework-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-user-tie text-muted"></i>
+                                    <span>{{ odev.ogretmen.get_full_name }}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-calendar-plus text-muted"></i>
+                                    <span>{{ odev.olusturma_tarihi|date:"d.m.Y" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="homework-footer">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="deadline-info">
+                                    <i class="fas fa-calendar-alt text-orange me-2"></i>
+                                    <span class="fw-semibold">Son Teslim:</span>
+                                    <span class="deadline-date">{{ odev.son_teslim_tarihi|date:"d F Y" }}</span>
+                                </div>
+                                {% if request.user.role == 'ogretmen' %}
+                                    <button class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye me-1"></i>
+                                        Detay
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-sm btn-outline-success">
+                                        <i class="fas fa-check me-1"></i>
+                                        Tamamlandı
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Ödev İstatistikleri -->
+        {% if request.user.role == 'ogrenci' %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="stats-card">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0 text-muted">
+                            <i class="fas fa-chart-pie me-2"></i>
+                            Ödev İstatistiklerim
+                        </h6>
                     </div>
                     <div class="card-body">
-                        <p><strong>Sınıf:</strong> {{ odev.sinif_seviye }}{{ odev.sube }}</p>
-                        <p><strong>Açıklama:</strong> {{ odev.aciklama }}</p>
-                        <p><strong>Öğretmen:</strong> {{ odev.ogretmen.get_full_name }}</p>
-                        <p><strong>Son Teslim:</strong> 
-                            <span class="badge bg-light text-dark">{{ odev.son_teslim_tarihi }}</span>
-                        </p>
-                        <small class="text-white-50">Oluşturulma: {{ odev.olusturma_tarihi|date:"d.m.Y H:i" }}</small>
+                        <div class="row text-center">
+                            <div class="col-md-3 mb-3">
+                                <div class="stat-box">
+                                    <div class="stat-icon bg-primary bg-opacity-10">
+                                        <i class="fas fa-tasks text-primary"></i>
+                                    </div>
+                                    <h4 class="text-primary">{{ odevler|length }}</h4>
+                                    <p class="text-muted mb-0">Toplam Ödev</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="stat-box">
+                                    <div class="stat-icon bg-success bg-opacity-10">
+                                        <i class="fas fa-check-circle text-success"></i>
+                                    </div>
+                                    <h4 class="text-success">0</h4>
+                                    <p class="text-muted mb-0">Tamamlanan</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="stat-box">
+                                    <div class="stat-icon bg-warning bg-opacity-10">
+                                        <i class="fas fa-clock text-warning"></i>
+                                    </div>
+                                    <h4 class="text-warning">{{ odevler|length }}</h4>
+                                    <p class="text-muted mb-0">Bekleyen</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="stat-box">
+                                    <div class="stat-icon bg-danger bg-opacity-10">
+                                        <i class="fas fa-exclamation-triangle text-danger"></i>
+                                    </div>
+                                    <h4 class="text-danger">0</h4>
+                                    <p class="text-muted mb-0">Gecikmiş</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            {% endfor %}
         </div>
+        {% endif %}
+        
     {% else %}
-        <div class="alert alert-info">
-            Henüz ödev bulunmuyor.
+        <!-- Boş Durum -->
+        <div class="stats-card">
+            <div class="card-body text-center py-5">
+                <div class="mb-4">
+                    <div class="rounded-circle bg-info bg-opacity-10 d-inline-flex align-items-center justify-content-center" 
+                         style="width: 100px; height: 100px;">
+                        <i class="fas fa-tasks fa-4x text-info"></i>
+                    </div>
+                </div>
+                <h4 class="text-info mb-3">
+                    {% if request.user.role == 'ogretmen' %}
+                        Henüz ödev eklemediniz
+                    {% else %}
+                        Henüz ödev yok
+                    {% endif %}
+                </h4>
+                <p class="text-muted mb-4">
+                    {% if request.user.role == 'ogretmen' %}
+                        Öğrencilerinize ödev atamak için yeni ödev oluşturun.
+                    {% else %}
+                        Şu anda yapmanız gereken bir ödev bulunmuyor.
+                    {% endif %}
+                </p>
+                {% if request.user.role == 'ogretmen' %}
+                    <a href="{% url 'odevler:ekle' %}" class="btn-custom-primary">
+                        <i class="fas fa-plus me-1"></i>
+                        İlk Ödevi Ekle
+                    </a>
+                {% else %}
+                    <a href="{% url 'home' %}" class="btn-custom-primary">
+                        <i class="fas fa-home me-1"></i>
+                        Ana Sayfaya Dön
+                    </a>
+                {% endif %}
+            </div>
         </div>
     {% endif %}
 </div>

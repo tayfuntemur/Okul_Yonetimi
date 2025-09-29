@@ -85,6 +85,11 @@ JAZZMIN_SETTINGS = {
 
 WSGI_APPLICATION = 'OkulYonetimi.wsgi.application'
 
+ADMIN_SITE_HEADER = "Okul Yönetimi Admin"
+ADMIN_SITE_TITLE = "Okul Yönetimi"
+ADMIN_INDEX_TITLE = "Yönetim Paneli"
+
+
 
 DATABASES = {
     'default': {

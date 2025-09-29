@@ -1,0 +1,430 @@
+/* ========================================
+   CUSTOM DJANGO ADMIN - OKUL YÖNETİMİ
+   ======================================== */
+
+:root {
+    --primary-orange: #FF6B35;
+    --secondary-orange: #FF8C42;
+    --dark-bg: #1a1a1a;
+    --sidebar-bg: #2c2c2c;
+}
+
+/* ========================================
+   HEADER & BRANDING
+   ======================================== */
+
+#header {
+    background: linear-gradient(135deg, var(--dark-bg) 0%, var(--sidebar-bg) 100%);
+    border-bottom: 3px solid var(--primary-orange);
+    padding: 15px 20px;
+}
+
+.admin-branding #site-name {
+    margin: 0;
+}
+
+.admin-branding #site-name a {
+    color: white !important;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-branding .brand-accent {
+    color: var(--primary-orange);
+}
+
+.admin-branding #site-name a:hover {
+    color: var(--primary-orange) !important;
+}
+
+/* User Info */
+.user-info-admin {
+    color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-info-admin a {
+    color: white !important;
+    text-decoration: none;
+}
+
+.user-info-admin a:hover {
+    color: var(--primary-orange) !important;
+}
+
+.separator {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* ========================================
+   BREADCRUMBS
+   ======================================== */
+
+.breadcrumbs {
+    background: var(--primary-orange) !important;
+    color: white !important;
+    padding: 10px 20px;
+}
+
+.breadcrumbs a {
+    color: white !important;
+    text-decoration: none;
+}
+
+.breadcrumbs a:hover {
+    text-decoration: underline;
+}
+
+/* ========================================
+   BUTTONS
+   ======================================== */
+
+.button, 
+input[type=submit], 
+input[type=button], 
+.submit-row input,
+button[type=submit] {
+    background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange)) !important;
+    border: none !important;
+    color: white !important;
+    padding: 10px 20px !important;
+    border-radius: 8px !important;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.button:hover, 
+input[type=submit]:hover, 
+input[type=button]:hover,
+.submit-row input:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3) !important;
+}
+
+.button.default,
+input[type=submit].default,
+.submit-row input.default {
+    background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange)) !important;
+}
+
+/* Delete button */
+.deletelink, .deletelink-box {
+    background: #dc3545 !important;
+}
+
+/* ========================================
+   LINKS
+   ======================================== */
+
+a:link, a:visited {
+    color: var(--primary-orange);
+}
+
+a:hover {
+    color: var(--secondary-orange);
+}
+
+/* ========================================
+   MODULE HEADERS
+   ======================================== */
+
+.module h2, 
+.module caption,
+#changelist h1 {
+    background: var(--primary-orange);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px 5px 0 0;
+}
+
+/* ========================================
+   ADMIN DASHBOARD
+   ======================================== */
+
+.admin-welcome-card {
+    background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+    color: white;
+    padding: 30px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(255, 107, 53, 0.2);
+}
+
+.admin-welcome-card h2 {
+    margin: 0 0 10px 0;
+    font-size: 2rem;
+}
+
+.admin-welcome-card p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+
+
+.admin-stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: transform 0.3s ease;
+}
+
+.admin-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.stat-icon.bg-primary { background: #007bff; }
+.stat-icon.bg-success { background: #28a745; }
+.stat-icon.bg-warning { background: #ffc107; color: #000; }
+.stat-icon.bg-info { background: #17a2b8; }
+
+.stat-info h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.stat-info p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+
+
+.admin-module-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    border-top: 4px solid var(--primary-orange);
+}
+
+.module-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 15px 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.module-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.module-header i {
+    color: var(--primary-orange);
+}
+
+.module-body {
+    padding: 15px 20px;
+}
+
+.model-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.model-item:last-child {
+    border-bottom: none;
+}
+
+.model-link {
+    color: #333;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex: 1;
+}
+
+.model-link:hover {
+    color: var(--primary-orange);
+}
+
+.add-link {
+    color: var(--primary-orange);
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.add-link:hover {
+    transform: scale(1.2);
+}
+
+/* Recent Actions */
+.admin-recent-actions {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.admin-recent-actions h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+    display: flex;
+    align-items: center;
+}
+
+.action-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.action-item {
+    padding: 10px;
+    border-left: 3px solid #ddd;
+    margin-bottom: 10px;
+    background: #f8f9fa;
+    border-radius: 0 8px 8px 0;
+}
+
+.action-item.addition {
+    border-left-color: #28a745;
+}
+
+.action-item.change {
+    border-left-color: #ffc107;
+}
+
+.action-item.deletion {
+    border-left-color: #dc3545;
+}
+
+.time {
+    color: #999;
+    font-size: 0.875rem;
+    display: block;
+    margin-top: 5px;
+}
+
+/* ========================================
+   FORMS
+   ======================================== */
+
+.form-row {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 15px 0;
+}
+
+.form-row:hover {
+    background: #f8f9fa;
+}
+
+textarea, input[type=text], input[type=password], 
+input[type=email], input[type=url], input[type=number], 
+input[type=tel], select {
+    border: 2px solid #e9ecef !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+    transition: border-color 0.3s ease !important;
+}
+
+textarea:focus, input:focus, select:focus {
+    border-color: var(--primary-orange) !important;
+    outline: none !important;
+}
+
+/* ========================================
+   TABLES
+   ======================================== */
+
+#result_list {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#result_list thead th {
+    background: var(--dark-bg) !important;
+    color: white !important;
+    padding: 12px !important;
+}
+
+#result_list tbody tr:hover {
+    background: rgba(255, 107, 53, 0.05) !important;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+/* Responsive - mobilde tek sütun */
+@media (max-width: 768px) {
+    .admin-stats-row,
+    .admin-modules {
+        grid-template-columns: 1fr;
+    }
+
+    
+    .admin-welcome-card h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Container - Tam Genişlik */
+.admin-dashboard {
+    background: #f8f9fa;
+    padding: 20px;
+    max-width: 100%;
+    width: 100%;
+}
+
+#content {
+    padding: 20px 40px;
+}
+
+#content-main {
+    width: 100% !important;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Sidebar gizle */
+.dashboard #content-related {
+    display: none !important;
+}
+
+.dashboard .colMS {
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+/* 2 Sütun Layout */
+.admin-stats-row,
+.admin-modules {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+    margin-bottom: 30px;
+    width: 100%;
+}

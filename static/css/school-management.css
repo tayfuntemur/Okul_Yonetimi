@@ -575,8 +575,345 @@ body {
 }
 
 /* ==========================================================================
-   PROGRESS CIRCLES AND STATISTICS
+   TEACHER AND STAFF COMPONENTS
    ========================================================================== */
+
+.teacher-avatar {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.small-avatar {
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.teacher-item,
+.staff-row,
+.affected-lesson-row {
+    transition: var(--transition);
+    border: none;
+    padding: 1.25rem;
+}
+
+.teacher-item:hover,
+.staff-row:hover,
+.affected-lesson-row:hover {
+    background-color: rgba(255, 107, 53, 0.05);
+    transform: translateX(5px);
+}
+
+.availability-badge {
+    background: #d4edda;
+    color: #28a745;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-present {
+    background: #d4edda;
+    color: #28a745;
+}
+
+.status-absent {
+    background: #f8d7da;
+    color: #dc3545;
+}
+
+.time-info-box {
+    text-align: center;
+}
+
+.time-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.5rem;
+}
+
+.bg-orange {
+    background-color: var(--primary-orange);
+}
+
+.bg-orange.bg-opacity-10 {
+    background-color: rgba(255, 107, 53, 0.1) !important;
+}
+
+/* Leave Cards */
+.leave-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    border-left: 4px solid #ffc107;
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+    height: 100%;
+}
+
+.leave-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.leave-header {
+    padding: 1rem;
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.leave-type-badge {
+    background: var(--dark-bg);
+    color: white;
+    padding: 0.375rem 0.75rem;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.leave-body {
+    padding: 1rem;
+}
+
+.homework-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+    border-top: 4px solid var(--primary-orange);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.homework-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-medium);
+}
+
+.homework-header {
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.homework-title {
+    color: var(--dark-bg);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.homework-status {
+    display: flex;
+    align-items: center;
+}
+
+.status-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #28a745;
+}
+
+.status-today {
+    background: #fff3cd;
+    color: #ffc107;
+}
+
+.status-overdue {
+    background: #f8d7da;
+    color: #dc3545;
+}
+
+.homework-body {
+    padding: 1.25rem;
+    flex-grow: 1;
+}
+
+.homework-description {
+    color: #495057;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: start;
+}
+
+.homework-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.homework-footer {
+    padding: 1rem 1.25rem;
+    background: #f8f9fa;
+    border-top: 1px solid var(--border-color);
+}
+
+.deadline-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.deadline-date {
+    color: var(--primary-orange);
+    font-weight: 600;
+}
+
+.stat-box {
+    text-align: center;
+    padding: 1rem;
+}
+
+.stat-box .stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.5rem;
+}
+
+.announcement-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: var(--shadow-light);
+    transition: var(--transition);
+    border-left: 5px solid;
+}
+
+.announcement-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-medium);
+}
+
+.announcement-card.priority-urgent {
+    border-left-color: #dc3545;
+}
+
+.announcement-card.priority-high {
+    border-left-color: #ffc107;
+}
+
+.announcement-card.priority-normal {
+    border-left-color: #17a2b8;
+}
+
+.announcement-header {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.priority-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.priority-urgent .priority-icon {
+    background: #dc3545;
+    color: white;
+}
+
+.priority-high .priority-icon {
+    background: #ffc107;
+    color: #000;
+}
+
+.priority-normal .priority-icon {
+    background: #17a2b8;
+    color: white;
+}
+
+.priority-badge {
+    background: var(--dark-bg);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.announcement-body {
+    padding: 1.5rem;
+}
+
+.announcement-content {
+    color: #495057;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.announcement-footer {
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.875rem;
+}
 
 .progress-circle {
     width: 60px;

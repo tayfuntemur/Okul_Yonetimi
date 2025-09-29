@@ -1,86 +1,346 @@
 {% extends 'base.html' %}
 {% load program_filters %}
+{% block title %}Ders Programları - Okul Yönetimi{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
-    <h3 class="text-center mb-4">📅 Ders Programları</h3>
-    
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="welcome-card text-center mb-4">
+        <h2 class="mb-1">
+            <i class="fas fa-calendar-week me-2"></i>
+            Ders Programları
+        </h2>
+        <p class="mb-0 opacity-75">Tüm sınıfların ders programlarını görüntüleyin</p>
+    </div>
+
     <!-- Sınıf Seçimi -->
-    <form method="get" class="mb-4">
-        <div class="row justify-content-center">
-            <div class="col-md-3">
-                <select name="sinif_seviye" class="form-control">
-                    <option value="1" {% if sinif_seviye == '1' %}selected{% endif %}>1. Sınıf</option>
-                    <option value="2" {% if sinif_seviye == '2' %}selected{% endif %}>2. Sınıf</option>
-                    <option value="3" {% if sinif_seviye == '3' %}selected{% endif %}>3. Sınıf</option>
-                    <option value="4" {% if sinif_seviye == '4' %}selected{% endif %}>4. Sınıf</option>
-                    <option value="5" {% if sinif_seviye == '5' %}selected{% endif %}>5. Sınıf</option>
-                    <option value="6" {% if sinif_seviye == '6' %}selected{% endif %}>6. Sınıf</option>
-                    <option value="7" {% if sinif_seviye == '7' %}selected{% endif %}>7. Sınıf</option>
-                    <option value="8" {% if sinif_seviye == '8' %}selected{% endif %}>8. Sınıf</option>
-                </select>
-            </div>
-            <div class="col-md-3">
-                <select name="sube" class="form-control">
-                    <option value="A" {% if sube == 'A' %}selected{% endif %}>A Şubesi</option>
-                    <option value="B" {% if sube == 'B' %}selected{% endif %}>B Şubesi</option>
-                    <option value="C" {% if sube == 'C' %}selected{% endif %}>C Şubesi</option>
-                    <option value="D" {% if sube == 'D' %}selected{% endif %}>D Şubesi</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary btn-block">Göster</button>
+    <div class="stats-card mb-4">
+        <div class="card-header bg-gradient-orange text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-filter me-2"></i>
+                Sınıf Seçimi
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="get">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-graduation-cap me-2 text-orange"></i>
+                            Sınıf Seviyesi
+                        </label>
+                        <select name="sinif_seviye" class="form-control">
+                            <option value="1" {% if sinif_seviye == '1' %}selected{% endif %}>1. Sınıf</option>
+                            <option value="2" {% if sinif_seviye == '2' %}selected{% endif %}>2. Sınıf</option>
+                            <option value="3" {% if sinif_seviye == '3' %}selected{% endif %}>3. Sınıf</option>
+                            <option value="4" {% if sinif_seviye == '4' %}selected{% endif %}>4. Sınıf</option>
+                            <option value="5" {% if sinif_seviye == '5' %}selected{% endif %}>5. Sınıf</option>
+                            <option value="6" {% if sinif_seviye == '6' %}selected{% endif %}>6. Sınıf</option>
+                            <option value="7" {% if sinif_seviye == '7' %}selected{% endif %}>7. Sınıf</option>
+                            <option value="8" {% if sinif_seviye == '8' %}selected{% endif %}>8. Sınıf</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-door-open me-2 text-orange"></i>
+                            Şube
+                        </label>
+                        <select name="sube" class="form-control">
+                            <option value="A" {% if sube == 'A' %}selected{% endif %}>A Şubesi</option>
+                            <option value="B" {% if sube == 'B' %}selected{% endif %}>B Şubesi</option>
+                            <option value="C" {% if sube == 'C' %}selected{% endif %}>C Şubesi</option>
+                            <option value="D" {% if sube == 'D' %}selected{% endif %}>D Şubesi</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn-custom-primary w-100">
+                            <i class="fas fa-search me-2"></i>
+                            Programı Göster
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Program Tablosu -->
+    <div class="stats-card">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-table me-2"></i>
+                    {{ sinif_seviye }}{{ sube }} Sınıfı Programı
+                </h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-light btn-sm" onclick="printSchedule()">
+                        <i class="fas fa-print me-1"></i>
+                        Yazdır
+                    </button>
+                    <a href="{% url 'dersler:program_tablo_duzenle' %}?sinif_seviye={{ sinif_seviye }}&sube={{ sube }}" class="btn btn-warning btn-sm">
+                        <i class="fas fa-edit me-1"></i>
+                        Düzenle
+                    </a>
+                </div>
             </div>
         </div>
-    </form>
-
-    <h5 class="text-center text-muted mb-4">{{ sinif_seviye }}{{ sube }} Sınıfı</h5>
-    
-    <!-- Program Tablosu -->
-    <div class="table-responsive">
-        <table class="table table-bordered text-center">
-            <thead class="table-dark">
-                <tr>
-                    <th style="width: 120px;">Saat</th>
-                    {% for gun in gunler %}
-                        <th>{{ gun|title }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for saat in saatler %}
-                    <tr>
-                        <td class="align-middle"><strong>{{ saat }}. Ders</strong><br>
-                            <small>
-                                {% if saat == '1' %}08:00-08:45
-                                {% elif saat == '2' %}09:00-09:45
-                                {% elif saat == '3' %}10:00-10:45
-                                {% elif saat == '4' %}11:00-11:45
-                                {% elif saat == '5' %}13:00-13:45
-                                {% elif saat == '6' %}14:00-14:45
-                                {% endif %}
-                            </small>
-                        </td>
-                        {% for gun in gunler %}
-                            {% with key=gun|add:"_"|add:saat %}
-                                {% with prog=program_data|get_item:key %}
-                                    {% if prog %}
-                                        <td class="text-white {{ prog.ders.renk }}" style="vertical-align: middle;">
-                                            <strong>{{ prog.ders.ad }}</strong>
-                                            {% if prog.ogretmen %}
-                                                <br><small>{{ prog.ogretmen.get_full_name }}</small>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table schedule-table mb-0">
+                    <thead>
+                        <tr>
+                            <th class="time-column">
+                                <i class="fas fa-clock me-2"></i>
+                                Saat
+                            </th>
+                            {% for gun in gunler %}
+                                <th class="day-column">
+                                    <i class="fas fa-calendar-day me-2"></i>
+                                    {{ gun|title }}
+                                </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for saat in saatler %}
+                            <tr>
+                                <td class="time-cell">
+                                    <div class="lesson-number">{{ saat }}. Ders</div>
+                                    <div class="time-range">
+                                        {% if saat == '1' %}08:00-08:45
+                                        {% elif saat == '2' %}09:00-09:45
+                                        {% elif saat == '3' %}10:00-10:45
+                                        {% elif saat == '4' %}11:00-11:45
+                                        {% elif saat == '5' %}13:00-13:45
+                                        {% elif saat == '6' %}14:00-14:45
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                {% for gun in gunler %}
+                                    {% with key=gun|add:"_"|add:saat %}
+                                        {% with prog=program_data|get_item:key %}
+                                            {% if prog %}
+                                                <td class="lesson-cell">
+                                                    <div class="lesson-content">
+                                                        <div class="lesson-icon">
+                                                            <i class="fas fa-book"></i>
+                                                        </div>
+                                                        <div class="lesson-name">{{ prog.ders.ad }}</div>
+                                                        {% if prog.ogretmen %}
+                                                            <div class="lesson-teacher">
+                                                                <i class="fas fa-user-tie me-1"></i>
+                                                                {{ prog.ogretmen.get_full_name }}
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                            {% else %}
+                                                <td class="empty-cell">
+                                                    <div class="empty-content">
+                                                        <i class="fas fa-minus text-muted"></i>
+                                                    </div>
+                                                </td>
                                             {% endif %}
-                                        </td>
-                                    {% else %}
-                                        <td class="table-light">-</td>
-                                    {% endif %}
-                                {% endwith %}
-                            {% endwith %}
+                                        {% endwith %}
+                                    {% endwith %}
+                                {% endfor %}
+                            </tr>
                         {% endfor %}
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Tablo Alt Bilgi -->
+        <div class="card-footer bg-light">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        {{ sinif_seviye }}{{ sube }} sınıfı haftalık ders programı
+                    </small>
+                </div>
+                <div class="col-md-6 text-end">
+                    <small class="text-muted">
+                        <i class="fas fa-users me-1"></i>
+                        Admin Görünümü
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hızlı Erişim -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <a href="{% url 'dersler:program_tablo_duzenle' %}?sinif_seviye={{ sinif_seviye }}&sube={{ sube }}" class="quick-action-btn text-decoration-none">
+                <i class="fas fa-edit text-warning"></i>
+                <div class="fw-semibold">Programı Düzenle</div>
+                <small class="text-muted">Ders ekle/çıkar</small>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="#" class="quick-action-btn text-decoration-none" onclick="exportSchedule()">
+                <i class="fas fa-download text-success"></i>
+                <div class="fw-semibold">Excel'e Aktar</div>
+                <small class="text-muted">Program indir</small>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="#" class="quick-action-btn text-decoration-none" onclick="compareSchedules()">
+                <i class="fas fa-chart-bar text-info"></i>
+                <div class="fw-semibold">Karşılaştır</div>
+                <small class="text-muted">Şubeler arası</small>
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="#" class="quick-action-btn text-decoration-none" onclick="printSchedule()">
+                <i class="fas fa-print text-secondary"></i>
+                <div class="fw-semibold">Yazdır</div>
+                <small class="text-muted">PDF çıktısı</small>
+            </a>
+        </div>
     </div>
 </div>
+
+<script>
+function printSchedule() {
+    window.print();
+}
+
+function exportSchedule() {
+    alert('Excel export özelliği geliştirme aşamasında...');
+}
+
+function compareSchedules() {
+    alert('Şube karşılaştırma özelliği geliştirme aşamasında...');
+}
+</script>
+
+<style>
+/* Schedule Table Styles (Reused from weekly schedule) */
+.schedule-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.schedule-table thead tr {
+    background: linear-gradient(135deg, var(--dark-bg) 0%, var(--sidebar-bg) 100%);
+}
+
+.schedule-table thead th {
+    color: white;
+    padding: 1rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.time-column {
+    width: 120px;
+    min-width: 120px;
+}
+
+.day-column {
+    width: calc((100% - 120px) / 5);
+    text-align: center;
+}
+
+.time-cell {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    text-align: center;
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.lesson-number {
+    font-weight: 700;
+    color: var(--dark-bg);
+    font-size: 1rem;
+}
+
+.time-range {
+    color: var(--text-light);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.lesson-cell {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+    position: relative;
+    vertical-align: middle;
+    transition: var(--transition);
+}
+
+.lesson-cell:hover {
+    transform: scale(1.02);
+    z-index: 10;
+    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
+}
+
+.lesson-content {
+    background: white;
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    height: 100%;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.lesson-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.lesson-name {
+    font-weight: 700;
+    color: var(--dark-bg);
+    font-size: 0.95rem;
+}
+
+.lesson-teacher {
+    color: var(--text-light);
+    font-size: 0.8rem;
+}
+
+.empty-cell {
+    background: #f8f9fa;
+    border: 1px solid var(--border-color);
+    vertical-align: middle;
+    text-align: center;
+    padding: 1rem;
+}
+
+.empty-content {
+    opacity: 0.3;
+}
+
+/* Print Styles */
+@media print {
+    .welcome-card,
+    .card-footer,
+    .quick-action-btn,
+    .btn,
+    .card-header .btn-group {
+        display: none !important;
+    }
+    
+    .schedule-table {
+        font-size: 0.8rem;
+    }
+}
+</style>
 {% endblock %}

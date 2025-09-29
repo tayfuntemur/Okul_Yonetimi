@@ -1,0 +1,34 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | Okul Yönetimi{% endblock %}
+
+{% block branding %}
+<div class="admin-branding">
+    <h1 id="site-name">
+        <a href="{% url 'admin:index' %}">
+            <i class="fas fa-graduation-cap"></i>
+            <span class="brand-text"><span class="brand-accent">Okul</span> Yönetimi</span>
+        </a>
+    </h1>
+</div>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="{% static 'admin/css/custom-admin.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block userlinks %}
+<div class="user-info-admin">
+    <i class="fas fa-user-circle"></i>
+    {% if user.is_active and user.is_staff %}
+        {% if user.first_name %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}
+        <span class="separator">|</span>
+        <a href="{% url 'admin:password_change' %}">Şifre Değiştir</a>
+        <span class="separator">|</span>
+        <a href="{% url 'admin:logout' %}">Çıkış</a>
+    {% endif %}
+</div>
+{% endblock %}

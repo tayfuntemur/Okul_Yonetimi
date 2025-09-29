@@ -1,72 +1,218 @@
 {% extends 'base.html' %}
+{% block title %}Yeni Ödev Ekle - Okul Yönetimi{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Yeni Ödev Ekle</h2>
-    
-    {% if dersler and siniflar %}
-    <div class="card mt-3">
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-                
-                <div class="mb-3">
-                    <label for="ders" class="form-label">Ders</label>
-                    <select name="ders" id="ders" class="form-select" required>
-                        <option value="">Ders Seçin</option>
-                        {% for ders in dersler %}
-                            <option value="{{ ders.id }}">{{ ders.ad }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label for="sinif" class="form-label">Sınıf</label>
-                    <select name="sinif" id="sinif" class="form-select" required>
-                        <option value="">Sınıf Seçin</option>
-                        {% for sinif in siniflar %}
-                            <option value="{{ sinif.seviye }}-{{ sinif.sube }}">
-                                {{ sinif.seviye }}{{ sinif.sube }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label for="baslik" class="form-label">Ödev Başlığı</label>
-                    <input type="text" name="baslik" id="baslik" class="form-control" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="aciklama" class="form-label">Açıklama</label>
-                    <textarea name="aciklama" id="aciklama" class="form-control" rows="4" required></textarea>
-                </div>
-
-                <div class="mb-3">
-                    <label for="son_teslim_tarihi" class="form-label">Son Teslim Tarihi</label>
-                    <input type="date" name="son_teslim_tarihi" id="son_teslim_tarihi" class="form-control" required>
-                </div>
-
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-success">Ödev Ekle</button>
-                    <a href="{% url 'odevler:liste' %}" class="btn btn-secondary">İptal</a>
-                </div>
-            </form>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="welcome-card text-center mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Yeni Ödev Ekle
+                </h2>
+                <p class="mb-0 opacity-75">Öğrencilere ödev ataması yapın</p>
+            </div>
+            <a href="{% url 'odevler:liste' %}" class="btn btn-light">
+                <i class="fas fa-arrow-left me-1"></i>
+                Ödev Listesi
+            </a>
         </div>
     </div>
+
+    {% if dersler and siniflar %}
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="stats-card">
+                <div class="card-header bg-gradient-orange text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>
+                        Ödev Bilgileri
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="ders" class="form-label fw-semibold">
+                                    <i class="fas fa-book me-2 text-orange"></i>
+                                    Ders
+                                </label>
+                                <select name="ders" id="ders" class="form-control" required>
+                                    <option value="">-- Ders Seçin --</option>
+                                    {% for ders in dersler %}
+                                        <option value="{{ ders.id }}">{{ ders.ad }}</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="text-muted">Ödev hangi ders için?</small>
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <label for="sinif" class="form-label fw-semibold">
+                                    <i class="fas fa-users me-2 text-orange"></i>
+                                    Sınıf
+                                </label>
+                                <select name="sinif" id="sinif" class="form-control" required>
+                                    <option value="">-- Sınıf Seçin --</option>
+                                    {% for sinif in siniflar %}
+                                        <option value="{{ sinif.seviye }}-{{ sinif.sube }}">
+                                            {{ sinif.seviye }}. Sınıf - {{ sinif.sube }} Şubesi
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <small class="text-muted">Hangi sınıfa atanacak?</small>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="baslik" class="form-label fw-semibold">
+                                <i class="fas fa-heading me-2 text-orange"></i>
+                                Ödev Başlığı
+                            </label>
+                            <input type="text" name="baslik" id="baslik" class="form-control" 
+                                   placeholder="Örn: Matematik Problemleri Sayfa 45-47" required>
+                            <small class="text-muted">Kısa ve açıklayıcı bir başlık</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="aciklama" class="form-label fw-semibold">
+                                <i class="fas fa-align-left me-2 text-orange"></i>
+                                Açıklama
+                            </label>
+                            <textarea name="aciklama" id="aciklama" class="form-control" rows="6" 
+                                      placeholder="Ödev detaylarını, yapılması gerekenleri ve notları buraya yazın..." required></textarea>
+                            <small class="text-muted">Öğrencilerin yapması gerekenleri detaylı açıklayın</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="son_teslim_tarihi" class="form-label fw-semibold">
+                                <i class="fas fa-calendar-alt me-2 text-orange"></i>
+                                Son Teslim Tarihi
+                            </label>
+                            <input type="date" name="son_teslim_tarihi" id="son_teslim_tarihi" class="form-control" required>
+                            <small class="text-muted">Ödevin teslim edileceği son tarih</small>
+                        </div>
+
+                        <!-- Bilgilendirme -->
+                        <div class="alert alert-info border-0 rounded-15 mb-4">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-info-circle text-info fa-2x me-3 mt-1"></i>
+                                <div>
+                                    <h6 class="alert-heading">Önemli Hatırlatma</h6>
+                                    <ul class="mb-0 ps-3">
+                                        <li>Ödev seçilen sınıftaki tüm öğrencilere gönderilecektir</li>
+                                        <li>Öğrenciler ödevi kendi panellerinden görebilecekler</li>
+                                        <li>Son teslim tarihinden önce hatırlatma bildirimi gönderilir</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a href="{% url 'odevler:liste' %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-1"></i>
+                                İptal
+                            </a>
+                            <button type="submit" class="btn-custom-primary">
+                                <i class="fas fa-check me-1"></i>
+                                Ödevi Kaydet ve Gönder
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Ödev Önerileri -->
+            <div class="stats-card mt-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0 text-muted">
+                        <i class="fas fa-lightbulb me-2"></i>
+                        İyi Ödev Oluşturma İpuçları
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex">
+                                <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                                <div>
+                                    <strong>Açık ve net olun</strong>
+                                    <p class="text-muted small mb-0">Beklentilerinizi detaylıca açıklayın</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex">
+                                <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                                <div>
+                                    <strong>Gerçekçi zaman verin</strong>
+                                    <p class="text-muted small mb-0">Öğrencilerin tamamlaması için yeterli süre tanıyın</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex">
+                                <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                                <div>
+                                    <strong>Kaynak belirtin</strong>
+                                    <p class="text-muted small mb-0">Kitap sayfaları veya materyalleri yazın</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex">
+                                <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                                <div>
+                                    <strong>Örnekler verin</strong>
+                                    <p class="text-muted small mb-0">Yapılacaklar için örnek gösterin</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     {% else %}
-    <div class="alert alert-warning mt-3">
-        Size atanmış ders veya sınıf bulunmuyor. Lütfen yöneticinizle iletişime geçin.
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="stats-card border-warning">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center" 
+                             style="width: 100px; height: 100px;">
+                            <i class="fas fa-exclamation-triangle fa-4x text-warning"></i>
+                        </div>
+                    </div>
+                    <h5 class="text-warning mb-3">Atama Bulunamadı</h5>
+                    <p class="text-muted mb-4">Size atanmış ders veya sınıf bulunmuyor. Lütfen yöneticinizle iletişime geçin.</p>
+                    <a href="{% url 'home' %}" class="btn-custom-primary">
+                        <i class="fas fa-home me-1"></i>
+                        Ana Sayfaya Dön
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
     {% endif %}
 </div>
 
 <script>
+// Son teslim tarihini bugünden sonraya ayarla
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('son_teslim_tarihi');
+    const today = new Date();
+    today.setDate(today.getDate() + 1); // En az yarın
+    dateInput.min = today.toISOString().split('T')[0];
+});
+
 // Sınıf seçildiğinde seviye ve şubeyi ayır
-document.getElementById('sinif').addEventListener('change', function() {
+document.getElementById('sinif')?.addEventListener('change', function() {
     const value = this.value.split('-');
     if(value.length === 2) {
-        // Hidden input'lar ekle
         let form = this.closest('form');
         
         // Eski hidden input'ları temizle
@@ -86,6 +232,25 @@ document.getElementById('sinif').addEventListener('change', function() {
         
         form.appendChild(seviyeInput);
         form.appendChild(subeInput);
+    }
+});
+
+// Form validasyonu
+const form = document.querySelector('form');
+form?.addEventListener('submit', function(e) {
+    const baslik = document.getElementById('baslik').value.trim();
+    const aciklama = document.getElementById('aciklama').value.trim();
+    
+    if(baslik.length < 5) {
+        e.preventDefault();
+        alert('Başlık en az 5 karakter olmalıdır.');
+        return false;
+    }
+    
+    if(aciklama.length < 10) {
+        e.preventDefault();
+        alert('Açıklama en az 10 karakter olmalıdır.');
+        return false;
     }
 });
 </script>

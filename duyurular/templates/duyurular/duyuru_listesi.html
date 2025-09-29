@@ -1,44 +1,113 @@
 {% extends 'base.html' %}
+{% block title %}Duyurular - Okul Yönetimi{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>📢 Duyurular</h2>
-        <a href="{% url 'home' %}" class="btn btn-secondary">
-            ← Ana Sayfaya Dön
-        </a>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="welcome-card text-center mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1">
+                    <i class="fas fa-bullhorn me-2"></i>
+                    Duyurular
+                </h2>
+                <p class="mb-0 opacity-75">Okul duyuruları ve önemli bildirimler</p>
+            </div>
+            <a href="{% url 'home' %}" class="btn btn-light">
+                <i class="fas fa-arrow-left me-1"></i>
+                Ana Sayfa
+            </a>
+        </div>
     </div>
 
     {% if duyurular %}
         <div class="row">
-    <div class="col-12">
-        {% for duyuru in duyurular %}
-        <div class="card shadow mb-3">
-            <div class="card-header 
-                {% if duyuru.oncelik == 'acil' %}bg-danger text-white
-                {% elif duyuru.oncelik == 'yuksek' %}bg-warning
-                {% else %}bg-info text-white{% endif %}">
-                <div class="d-flex justify-content-between">
-                    <h5 class="mb-0">{{ duyuru.baslik }}</h5>
-                    {% if duyuru.oncelik == 'yuksek' or duyuru.oncelik == 'acil' %}
-                        <span class="badge bg-dark">ÖNEMLİ</span>
-                    {% endif %}
+            <div class="col-12">
+                {% for duyuru in duyurular %}
+                <div class="announcement-card mb-4 
+                    {% if duyuru.oncelik == 'acil' %}priority-urgent
+                    {% elif duyuru.oncelik == 'yuksek' %}priority-high
+                    {% else %}priority-normal{% endif %}">
+                    
+                    <div class="announcement-header">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <div class="priority-icon">
+                                        {% if duyuru.oncelik == 'acil' %}
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        {% elif duyuru.oncelik == 'yuksek' %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="fas fa-info-circle"></i>
+                                        {% endif %}
+                                    </div>
+                                    <h5 class="mb-0">{{ duyuru.baslik }}</h5>
+                                </div>
+                            </div>
+                            {% if duyuru.oncelik == 'yuksek' or duyuru.oncelik == 'acil' %}
+                                <span class="priority-badge">
+                                    {% if duyuru.oncelik == 'acil' %}
+                                        <i class="fas fa-exclamation-circle me-1"></i>ACİL
+                                    {% else %}
+                                        <i class="fas fa-flag me-1"></i>ÖNEMLİ
+                                    {% endif %}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="announcement-body">
+                        <p class="announcement-content">{{ duyuru.icerik }}</p>
+                        
+                        <div class="announcement-footer">
+                            <div class="d-flex align-items-center gap-3 flex-wrap">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-user-circle text-muted me-2"></i>
+                                    <span class="text-muted">
+                                        <strong>Yazar:</strong> {{ duyuru.yazar.first_name }} {{ duyuru.yazar.last_name }}
+                                    </span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-calendar text-muted me-2"></i>
+                                    <span class="text-muted">
+                                        <strong>Tarih:</strong> {{ duyuru.olusturma_tarihi|date:"d.m.Y H:i" }}
+                                    </span>
+                                </div>
+                                {% if duyuru.oncelik %}
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-layer-group text-muted me-2"></i>
+                                    <span class="text-muted">
+                                        <strong>Öncelik:</strong> 
+                                        {% if duyuru.oncelik == 'acil' %}Acil
+                                        {% elif duyuru.oncelik == 'yuksek' %}Yüksek
+                                        {% else %}Normal{% endif %}
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="card-body">
-                <p>{{ duyuru.icerik }}</p>
-                <small class="text-muted">
-                    <strong>Yazar:</strong> {{ duyuru.yazar.first_name }} {{ duyuru.yazar.last_name }} | 
-                    <strong>Tarih:</strong> {{ duyuru.olusturma_tarihi|date:"d.m.Y H:i" }}
-                </small>
+                {% endfor %}
             </div>
         </div>
-        {% endfor %}
-    </div>
-
     {% else %}
-        <div class="alert alert-info text-center" role="alert">
-            <h4>Duyuru Bulunmuyor</h4>
-            <p>Şu anda sizin için aktif bir duyuru bulunmamaktadır.</p>
+        <div class="stats-card">
+            <div class="card-body text-center py-5">
+                <div class="mb-4">
+                    <div class="rounded-circle bg-info bg-opacity-10 d-inline-flex align-items-center justify-content-center" 
+                         style="width: 100px; height: 100px;">
+                        <i class="fas fa-bell-slash fa-4x text-info"></i>
+                    </div>
+                </div>
+                <h4 class="text-info mb-3">Duyuru Bulunmuyor</h4>
+                <p class="text-muted mb-4">Şu anda sizin için aktif bir duyuru bulunmamaktadır.</p>
+                <a href="{% url 'home' %}" class="btn-custom-primary">
+                    <i class="fas fa-home me-1"></i>
+                    Ana Sayfaya Dön
+                </a>
+            </div>
         </div>
     {% endif %}
 </div>

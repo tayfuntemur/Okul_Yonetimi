@@ -1,0 +1,147 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+.admin-dashboard {
+    background: #f8f9fa;
+    padding: 20px;
+}
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <!-- Welcome Card -->
+    <div class="admin-welcome-card">
+        <h2>
+            <i class="fas fa-home me-2"></i>
+            Hoş geldiniz, {% firstof user.get_short_name user.get_username %}!
+        </h2>
+        <p>Okul Yönetim Sistemi Admin Paneli</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="admin-stats-row">
+        <div class="admin-stat-card">
+            <div class="stat-icon bg-primary">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Kullanıcılar</h3>
+                <p>Sistem kullanıcıları</p>
+            </div>
+        </div>
+        <div class="admin-stat-card">
+            <div class="stat-icon bg-success">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Öğrenciler</h3>
+                <p>Kayıtlı öğrenciler</p>
+            </div>
+        </div>
+        <div class="admin-stat-card">
+            <div class="stat-icon bg-warning">
+                <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Öğretmenler</h3>
+                <p>Aktif öğretmenler</p>
+            </div>
+        </div>
+        <div class="admin-stat-card">
+            <div class="stat-icon bg-info">
+                <i class="fas fa-book"></i>
+            </div>
+            <div class="stat-info">
+                <h3>Dersler</h3>
+                <p>Toplam dersler</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Modules -->
+    <div class="admin-modules">
+        {% if app_list %}
+            {% for app in app_list %}
+                <div class="admin-module-card">
+                    <div class="module-header">
+                        <h3>
+                            {% if app.app_label == 'users' %}
+                                <i class="fas fa-users"></i>
+                            {% elif app.app_label == 'ogrenciler' %}
+                                <i class="fas fa-user-graduate"></i>
+                            {% elif app.app_label == 'dersler' %}
+                                <i class="fas fa-book"></i>
+                            {% elif app.app_label == 'not_gir' %}
+                                <i class="fas fa-chart-line"></i>
+                            {% elif app.app_label == 'devamsizlik' %}
+                                <i class="fas fa-calendar-times"></i>
+                            {% elif app.app_label == 'duyurular' %}
+                                <i class="fas fa-bullhorn"></i>
+                            {% else %}
+                                <i class="fas fa-cog"></i>
+                            {% endif %}
+                            {{ app.name }}
+                        </h3>
+                    </div>
+                    <div class="module-body">
+                        {% for model in app.models %}
+                            <div class="model-item">
+                                <a href="{{ model.admin_url }}" class="model-link">
+                                    <i class="fas fa-angle-right"></i>
+                                    {{ model.name }}
+                                </a>
+                                {% if model.add_url %}
+                                    <a href="{{ model.add_url }}" class="add-link" title="Ekle">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">Yönetim için kullanılabilir modül yok.</p>
+        {% endif %}
+    </div>
+
+    <!-- Recent Actions -->
+    {% if user.is_active and user.is_staff %}
+    <div class="admin-recent-actions">
+        <h3><i class="fas fa-history me-2"></i>Son İşlemler</h3>
+        {% load log %}
+        {% get_admin_log 10 as admin_log for_user user %}
+        {% if admin_log %}
+            <ul class="action-list">
+            {% for entry in admin_log %}
+                <li class="action-item {% if entry.is_addition %}addition{% elif entry.is_change %}change{% elif entry.is_deletion %}deletion{% endif %}">
+                    {% if entry.is_deletion or not entry.get_admin_url %}
+                        {{ entry.object_repr }}
+                    {% else %}
+                        <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
+                    {% endif %}
+                    {% if entry.content_type %}
+                        <span class="mini">{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %}</span>
+                    {% endif %}
+                    {% if entry.change_message %}
+                        <span class="change-message">{{ entry.change_message }}</span>
+                    {% endif %}
+                    <span class="time">{{ entry.action_time|timesince }} önce</span>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">Henüz işlem yapılmamış.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}

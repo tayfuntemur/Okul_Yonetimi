@@ -1,25 +1,174 @@
 {% extends 'base.html' %}
+{% block title %}Boş Öğretmenler - Okul Yönetimi{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>👥 Boş Öğretmenler</h2>
-    <p class="text-muted">{{ gun|title }} - {{ saat }}. Saat</p>
-    
-    {% if bos_ogretmenler %}
-    <div class="list-group mt-3">
-        {% for ogretmen in bos_ogretmenler %}
-        <div class="list-group-item">
-            <strong>{{ ogretmen.get_full_name }}</strong>
-            <span class="badge bg-success float-end">Müsait</span>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="welcome-card text-center mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1">
+                    <i class="fas fa-user-check me-2"></i>
+                    Müsait Öğretmenler
+                </h2>
+                <p class="mb-0 opacity-75">
+                    <i class="fas fa-calendar-day me-2"></i>
+                    {{ gun|title }} - {{ saat }}. Saat
+                </p>
+            </div>
+            <a href="{% url 'personel_yonetimi:dashboard' %}" class="btn btn-light">
+                <i class="fas fa-arrow-left me-1"></i>
+                Geri Dön
+            </a>
         </div>
-        {% endfor %}
     </div>
+
+    <!-- Zaman Bilgisi Kartı -->
+    <div class="stats-card mb-4">
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <div class="time-info-box">
+                        <div class="time-icon bg-primary bg-opacity-10">
+                            <i class="fas fa-calendar-alt text-primary"></i>
+                        </div>
+                        <h6 class="mb-1">Gün</h6>
+                        <p class="mb-0 fw-semibold text-primary">{{ gun|title }}</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <div class="time-info-box">
+                        <div class="time-icon bg-success bg-opacity-10">
+                            <i class="fas fa-clock text-success"></i>
+                        </div>
+                        <h6 class="mb-1">Saat</h6>
+                        <p class="mb-0 fw-semibold text-success">{{ saat }}. Ders Saati</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="time-info-box">
+                        <div class="time-icon bg-orange bg-opacity-10">
+                            <i class="fas fa-users text-orange"></i>
+                        </div>
+                        <h6 class="mb-1">Müsait</h6>
+                        <p class="mb-0 fw-semibold text-orange">{{ bos_ogretmenler|length }} Öğretmen</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if bos_ogretmenler %}
+        <!-- Müsait Öğretmenler Listesi -->
+        <div class="stats-card">
+            <div class="card-header bg-gradient-orange text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>
+                    Müsait Öğretmenler
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for ogretmen in bos_ogretmenler %}
+                    <div class="list-group-item teacher-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <div class="teacher-avatar me-3">
+                                    {{ ogretmen.get_full_name|slice:":2"|upper }}
+                                </div>
+                                <div>
+                                    <h6 class="mb-1">{{ ogretmen.get_full_name }}</h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-envelope me-1"></i>
+                                        {{ ogretmen.email|default:"E-posta belirtilmemiş" }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="availability-badge">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    Müsait
+                                </span>
+                                <button class="btn btn-sm btn-outline-primary" onclick="contactTeacher('{{ ogretmen.get_full_name }}')">
+                                    <i class="fas fa-phone me-1"></i>
+                                    İletişim
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Liste Alt Bilgi -->
+            <div class="card-footer bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Toplam {{ bos_ogretmenler|length }} müsait öğretmen gösteriliyor
+                    </small>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="printList()">
+                        <i class="fas fa-print me-1"></i>
+                        Yazdır
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bilgilendirme -->
+        <div class="alert alert-info border-0 rounded-15 mt-4">
+            <div class="d-flex align-items-start">
+                <i class="fas fa-lightbulb text-info fa-2x me-3 mt-1"></i>
+                <div>
+                    <h6 class="alert-heading">Bilgi</h6>
+                    <p class="mb-0">
+                        Bu listede sadece seçilen gün ve saatte dersi olmayan öğretmenler gösterilmektedir. 
+                        Acil durumlarda veya ders değişikliği gerektiğinde bu listeden faydalanabilirsiniz.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
     {% else %}
-    <div class="alert alert-warning mt-3">
-        Bu saatte müsait öğretmen yok.
-    </div>
+        <!-- Boş Durum -->
+        <div class="stats-card">
+            <div class="card-body text-center py-5">
+                <div class="mb-4">
+                    <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center" 
+                         style="width: 100px; height: 100px;">
+                        <i class="fas fa-user-times fa-4x text-warning"></i>
+                    </div>
+                </div>
+                <h4 class="text-warning mb-3">Müsait Öğretmen Yok</h4>
+                <p class="text-muted mb-4">
+                    {{ gun|title }} günü {{ saat }}. saatte tüm öğretmenler meşgul durumda.
+                </p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="{% url 'personel_yonetimi:dashboard' %}" class="btn-custom-primary">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Geri Dön
+                    </a>
+                    <button class="btn btn-outline-secondary" onclick="checkOtherTimes()">
+                        <i class="fas fa-search me-1"></i>
+                        Diğer Saatlere Bak
+                    </button>
+                </div>
+            </div>
+        </div>
     {% endif %}
-    
-    <a href="{% url 'personel_yonetimi:dashboard' %}" class="btn btn-secondary mt-3">← Geri Dön</a>
 </div>
+
+<script>
+function contactTeacher(name) {
+    alert(name + ' ile iletişime geçiliyor...\n\nBu özellik geliştirme aşamasında.');
+}
+
+function printList() {
+    window.print();
+}
+
+function checkOtherTimes() {
+    alert('Diğer saat dilimlerini kontrol etme özelliği geliştirme aşamasında...');
+}
+</script>
 {% endblock %}
